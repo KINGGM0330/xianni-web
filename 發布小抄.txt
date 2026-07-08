@@ -1,0 +1,24 @@
+========================================================
+ 仙逆天堂官網 — 發布 / 更新 小抄
+========================================================
+
+【第一次上線（約 15 分鐘，只做一次）】
+1. 註冊 GitHub 帳號：github.com
+2. 安裝 GitHub Desktop：desktop.github.com，用 GitHub 帳號登入
+3. GitHub Desktop → File → Add local repository → 選這個「仙逆天堂官網」資料夾
+   （若說不是倉庫，點 create a repository 建立；本資料夾已附 .gitignore）
+   → Summary 填 Initial → Commit to main → 右上 Publish repository
+4. 註冊 Cloudflare：cloudflare.com
+   → Workers & Pages → Create → Pages → Connect to Git → 授權 GitHub → 選這個倉庫
+   → 設定：Framework preset = None、Build command 留空、Build output directory = /
+   → Save and Deploy，等約 1 分鐘 → 得到 xxxx.pages.dev 網址
+
+【日後更新（每次約 30 秒）】
+1. 本機改檔（例：改公告 = 編輯 assets/news.js）
+2. 開 GitHub Desktop（會自動列出改動）→ Summary 填一句 → Commit to main → Push origin
+3. Cloudflare 自動重新部署，約 1 分鐘更新，網址不變
+
+【要用到的檔（其餘 .gitignore 已排除，不會上傳）】
+index.html
+assets/：hero_bg.png、logo.png、logo_t.png、logo_anim.webp、news.js、1.png、2.png
+========================================================

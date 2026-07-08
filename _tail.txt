@@ -1,0 +1,141 @@
+;
+(function(){
+const DB=window.DB, app=document.getElementById('app');
+const el=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const clean=s=>String(s==null?'':s).replace(/\\f=?/gi,'').replace(/\\a./gi,'').replace(/\\[0-9%]/g,'').trim();
+const TYPE={singlebow:'單手弓',sword:'劍',claw:'爪',chainsword:'鎖鏈劍',kiringku:'起麟穿甲',staff:'法杖',edoryu:'刀',tohandsword:'雙手劍',bow:'弓',singlespear:'單手長矛',tohandblunt:'雙手鈍器',dagger:'匕首',spear:'長矛',gauntlet:'拳套',tohandstaff:'雙手法杖',blunt:'鈍器',boots:'靴子',helm:'頭盔',cloak:'斗篷',T:'內衣',pants:'褲子',armor:'鎧甲',amulet:'項鍊',ring:'戒指',glove:'手套',belt:'腰帶',shield:'盾牌',earring:'耳環',guarder:'護腕',shoulder:'肩甲',badge:'徽章',talisman:'符咒',talisman2:'符咒二',talisman3:'符咒三',runeword_left:'符文(左)',runeword_middle:'符文(中)',runeword_right:'符文(右)'};
+try{DB.weapon.sort((a,b)=>a.id-b.id);DB.armor.sort((a,b)=>a.id-b.id);}catch(e){}
+
+/* 背景粒子 */
+(function(){const c=el('fx'),x=c.getContext('2d');let w,h,ps;
+ function rs(){w=c.width=innerWidth;h=c.height=innerHeight;}rs();addEventListener('resize',rs);
+ ps=Array.from({length:70},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.8+.4,s:Math.random()*.4+.08,o:Math.random()*.5+.2,h:Math.random()<.5?'231,196,106':'165,130,255'}));
+ (function loop(){x.clearRect(0,0,w,h);for(const p of ps){p.y-=p.s;p.x+=Math.sin(p.y*.01)*.15;if(p.y<-5){p.y=h+5;p.x=Math.random()*w;}x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba('+p.h+','+p.o+')';x.shadowBlur=8;x.shadowColor='rgba('+p.h+',.8)';x.fill();}requestAnimationFrame(loop);})();})();
+
+function chips(s){const keys=Object.keys(s||{});if(!keys.length)return '<span style="color:var(--mut);font-size:11px">—</span>';
+ return '<div class="chips">'+keys.map(k=>{const v=s[k];const cls=(typeof v==='number'&&v<0)?'neg':'pos';return '<span class="chip '+cls+'">'+esc(k)+'<b>'+(v>0?'+':'')+v+'</b></span>';}).join('')+'</div>';}
+function jobs(arr){if(!arr||!arr.length)return '<span style="color:var(--mut);font-size:11px">全職</span>';if(arr.length>=8)return '<span class="job">全職業</span>';return '<div class="jobs">'+arr.map(j=>'<span class="job">'+esc(j)+'</span>').join('')+'</div>';}
+
+let heroRAF=null;
+function initHeroFx(){if(heroRAF)cancelAnimationFrame(heroRAF);const c=document.querySelector('.hero-fx');if(!c)return;const x=c.getContext('2d');let w=0,h=0;
+ function rs(){const r=c.getBoundingClientRect();w=c.width=Math.max(1,r.width|0);h=c.height=Math.max(1,r.height|0);}rs();
+ const COL=['231,196,106','150,200,255','185,150,255','120,240,220'];
+ const motes=Array.from({length:48},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*2+.6,s:Math.random()*.5+.15,dr:Math.random()*.6-.3,ph:Math.random()*6.28,tw:Math.random()*.045+.012,c:COL[(Math.random()*COL.length)|0],o:Math.random()*.5+.3}));
+ const pet=Array.from({length:16},()=>({x:Math.random()*w,y:Math.random()*h,vy:Math.random()*.5+.22,vx:Math.random()*.5-.25,rot:Math.random()*6.28,vr:(Math.random()*.02-.01),sz:Math.random()*7+5,o:Math.random()*.4+.22}));
+ let t=0;function loop(){t++;x.clearRect(0,0,w,h);
+  for(const m of motes){m.y-=m.s;m.x+=Math.sin(t*.01+m.ph)*.3+m.dr;if(m.y<-6){m.y=h+6;m.x=Math.random()*w;}if(m.x<-10)m.x=w+10;if(m.x>w+10)m.x=-10;const a=m.o*(0.55+0.45*Math.sin(t*m.tw+m.ph));x.beginPath();x.arc(m.x,m.y,m.r,0,6.29);x.fillStyle='rgba('+m.c+','+a.toFixed(3)+')';x.shadowBlur=10;x.shadowColor='rgba('+m.c+',.9)';x.fill();}
+  x.shadowBlur=0;for(const p of pet){p.y+=p.vy;p.x+=p.vx+Math.sin(p.y*.02)*.3;p.rot+=p.vr;if(p.y>h+12){p.y=-12;p.x=Math.random()*w;}x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle='rgba(255,190,225,'+p.o+')';x.beginPath();x.ellipse(0,0,p.sz,p.sz*.48,0,0,6.29);x.fill();x.restore();}
+  heroRAF=requestAnimationFrame(loop);}loop();}
+
+const NEWS_DEFAULT=[["07/06","✦","◆ 開機公告 ◆","<p>歡迎來到仙逆天堂！</p>"]];
+const NEWS=(window.SITE_NEWS&&window.SITE_NEWS.length)?window.SITE_NEWS:NEWS_DEFAULT;
+function home(){
+ return `<div class="hero">
+   <img class="hero-banner" src="assets/hero_bg.png" alt="仙逆天堂" onerror="this.style.display='none'">
+   <div class="hero-halo"></div><canvas class="hero-fx"></canvas>
+   <div class="hero-logo-wrap"><img class="hero-logo-ov" src="assets/logo_anim.webp" alt="仙逆天堂 King of Lineage" onerror="this.onerror=null;this.src='assets/logo_t.png'"></div>
+ </div>
+ <div class="blocktitle">最新公告</div>
+ <div class="ann">${NEWS.map((n,ix)=>`<div class="ann-row click" onclick="__art('news',${ix})"><span class="ann-date">${n[0]}</span><span class="ann-badge">${n[1]}</span><span class="ann-t">${esc(n[2])}</span><span class="arr">›</span></div>`).join('')}</div>
+ <div class="blocktitle">遊戲資料</div>
+ <div class="grid">
+   ${gc('weapon','','武器資訊',DB.weapon.length+' 件')}
+   ${gc('armor','','防具/飾品',DB.armor.length+' 件')}
+   ${gc('cards','','卡冊系統','娃娃/變身/聖物')}
+   ${gc('more','','其他系統','紋樣/轉生/威望…')}
+ </div>
+ <div class="foot">仙逆天堂 King of Lineage ‧ 官方情報站<br>資料取自本服資料庫，僅供參考，實際數值以遊戲內為準</div>`;
+}
+const gc=(s,i,t,n)=>`<div class="plaque" data-go="${s}">${n?`<div class="plaque-badge">${n}</div>`:''}<img class="plaque-logo" src="assets/logo_t.png" alt="" onerror="this.style.display='none'"><div class="plaque-frame"><div class="plaque-inner"><div class="plaque-title">${t}</div><div class="plaque-sub">點擊查看</div></div></div></div>`;
+
+/* 遊戲設定 */
+const SETTINGS=[
+ {t:'◆ 伺服器基本設定 ◆', sub:'成長・上限・職業・多開', secs:[
+   ['成長與倍率',[['經驗倍率','50x'],['掉寶倍率','2x'],['金幣倍率','2x'],['最高等級','99 級'],['轉生次數','10 轉'],['負重倍率','50x'],['商城 賣/買 價','1x / 1x']]],
+   ['角色 HP/MP 上限',[['王族 / 騎士 / 妖精 / 法師 / 黑妖','HP 20000 · MP 20000']]],
+   ['帳號多開',[['限制多開','3 開']]],
+ ]},
+ {t:'◆ 武防具安定 / 衝裝設定 ◆', sub:'安全值與屬性強化', secs:[
+   ['衝裝與屬性',[['武器安全強化','+15'],['防具安全強化','+10'],['屬性攻擊強化機率','15%']]],
+ ]},
+ {t:'◆ 寵物設定 ◆', sub:'寵物成長與負重', secs:[
+   ['寵物',[['寵物最高等級','60 級'],['寵物經驗倍率','50x'],['寵物負重倍率','10x']]],
+ ]},
+];
+function settings(){const rows=SETTINGS.map((s,i)=>`<div class="ann-row click" onclick="__art('setting',${i})"><span class="ann-badge">⚙</span><span class="ann-t">${esc(s.t)}</span><span class="arr">›</span></div>`).join('');
+ return `<div class="sec-head"><div><h1 class="title">遊戲設定</h1><div class="subtitle">本服設定總覽 ‧ 點擊列進入全文</div></div><span class="count">共 ${SETTINGS.length} 則</span></div><div class="ann">${rows}</div>`;}
+function renderSetting(s){const secs=s.secs.map(([tt,rows])=>`<div class="set-sec"><div class="set-sec-t">${esc(tt)}</div>`+rows.map(([l,v])=>`<div class="set-row"><span class="set-l">${esc(l)}</span><span class="set-v">${esc(v)}</span></div>`).join('')+`</div>`).join('');
+ return `<div class="art"><div class="art-head"><h1 class="title">${esc(s.t)}</h1><div class="subtitle">${esc(s.sub||'')}</div></div>${secs}</div>`;}
+
+/* 武器/防具 */
+function equipView(kind){const isW=kind==='weapon';const title=isW?'武器資訊':'防具/飾品';const types=[...new Set(DB[kind].map(x=>x.ty).filter(Boolean))].sort();
+ return `<div class="sec-head"><div><h1 class="title">${title}</h1><div class="subtitle">共 ${DB[kind].length} 件 ‧ 資料取自本服資料庫（僅供參考）</div></div></div>
+  <div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋名稱…" oninput="__f()"></div>
+    <select class="self" id="ty" onchange="__f()"><option value="">全部類型</option>${types.map(t=>`<option value="${esc(t)}">${esc(TYPE[t]||t)}</option>`).join('')}</select>
+    <select class="self" id="jb" onchange="__f()"><option value="">全部職業</option>${['王族','騎士','法師','妖精','黑妖','龍騎士','幻術師','戰士'].map(j=>`<option>${j}</option>`).join('')}</select>
+    <span class="count" id="cnt"></span></div>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>名稱</th><th>類型</th>${isW?'':'<th>AC</th>'}<th>可用職業</th><th>附加能力</th></tr></thead><tbody id="rows"></tbody></table></div>`;}
+function equipRender(kind){const q=(el('q').value||'').trim(),ty=el('ty').value,jb=el('jb').value;const isW=kind==='weapon',CAP=400;
+ let arr=DB[kind];if(q)arr=arr.filter(x=>x.n.indexOf(q)>=0||String(x.id).indexOf(q)>=0);if(ty)arr=arr.filter(x=>x.ty===ty);if(jb)arr=arr.filter(x=>(x.job||[]).indexOf(jb)>=0);
+ const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total} 件`+(total>CAP?`（顯示前 ${CAP}，請用搜尋縮小）`:'');
+ const acCell=r=>{const v=(r.s&&r.s.AC);return '<td>'+(v?('<span class="chip neg">'+v+'</span>'):'—')+'</td>';};
+ el('rows').innerHTML=show.map(r=>{const s=Object.assign({},r.s);if(!isW)delete s.AC;return `<tr><td><div class="nm">${esc(r.n)}</div><div class="idc">#${r.id}${r.se?' ‧ 安全值 '+r.se:''}</div></td><td style="color:var(--dim)">${esc(TYPE[r.ty]||r.ty||'—')}</td>${isW?'':acCell(r)}<td>${jobs(r.job)}</td><td>${chips(s)}</td></tr>`;}).join('')||'<tr><td colspan="5"><div class="empty">找不到符合的裝備</div></td></tr>';}
+
+/* 卡冊 */
+function cardView(kind,title,desc){return `<div class="sec-head"><div><h1 class="title">${title}</h1><div class="subtitle">${desc} ‧ 共 ${DB[kind].length} 張</div></div></div><div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋卡片名稱…" oninput="__f()"></div><span class="count" id="cnt"></span></div><div class="clist" id="rows"></div>`;}
+function cardRender(kind){const q=(el('q').value||'').trim();const CAP=300;let arr=DB[kind];if(q)arr=arr.filter(x=>clean(x.n).indexOf(q)>=0);const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total} 張`+(total>CAP?`（顯示前 ${CAP}）`:'');
+ el('rows').innerHTML=show.map(r=>{const meta=(kind==='transform'&&r.t)?('變身時效 '+Math.round(r.t/60)+' 分'):'';return `<div class="cc"><div class="cn">${esc(clean(r.n))}</div>${meta?`<div class="cmeta">${meta}</div>`:''}${chips(r.s)}</div>`;}).join('')||'<div class="empty">找不到符合的卡片</div>';}
+function cards(){return `<div class="sec-head"><div><h1 class="title">卡冊系統</h1><div class="subtitle">蒐集卡片，永久累積屬性與戰鬥能力</div></div></div><div class="grid">${gc('doll','','娃娃系統',DB.doll.length+' 張')}${gc('transform','','變身系統',DB.transform.length+' 張')}${gc('holy','','聖物系統',DB.holy.length+' 張')}</div>`;}
+
+/* 紋樣 */
+function patternView(){const names=[...new Set(DB.pattern.map(x=>x.n))];return `<div class="sec-head"><div><h1 class="title">紋樣系統</h1><div class="subtitle">共 ${names.length} 種紋樣 ‧ ${DB.pattern.length} 個等級設定</div></div></div><div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋紋樣名稱…" oninput="__f()"></div><span class="count" id="cnt"></span></div><div class="clist" id="rows" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>`;}
+function patternRender(){const q=(el('q').value||'').trim();const g={};DB.pattern.forEach(p=>{if(q&&p.n.indexOf(q)<0)return;(g[p.n]=g[p.n]||[]).push(p);});const keys=Object.keys(g);el('cnt').textContent=`${keys.length} 種`;
+ el('rows').innerHTML=keys.map(n=>{const lv=g[n].sort((a,b)=>a.lv-b.lv);const rows=lv.map(p=>`<tr><td style="color:var(--gold2);font-weight:700;white-space:nowrap">Lv${p.lv}</td><td>${chips(p.s)}</td></tr>`).join('');return `<div class="cc"><div class="cn">${esc(n)}</div><table class="tbl" style="font-size:12px"><tbody>${rows}</tbody></table></div>`;}).join('')||'<div class="empty">找不到</div>';}
+
+function rebirthView(){const rows=DB.rebirth.slice().sort((a,b)=>a.lv-b.lv).map(r=>`<tr><td class="nm" style="color:var(--gold2)">${r.lv} 轉</td><td>${esc(clean(r.title||''))}</td><td style="color:var(--dim)">${esc(r.job)}</td><td>${chips(r.s)}</td></tr>`).join('');return `<div class="sec-head"><div><h1 class="title">轉生系統</h1><div class="subtitle">達標後可轉生，獲得專屬稱號與全面能力成長</div></div></div><div class="tblwrap"><table class="tbl"><thead><tr><th>轉生</th><th>稱號</th><th>適用</th><th>能力加成</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
+function prestigeView(){const rows=DB.prestige.slice().sort((a,b)=>a.rk-b.rk).map(r=>`<tr><td class="nm" style="color:var(--gold2)">第 ${r.rk} 階</td><td>${esc(clean(r.n))}</td><td class="idc">${r.min.toLocaleString()} ~ ${r.max.toLocaleString()}</td><td>${chips(r.s)}</td></tr>`).join('');return `<div class="sec-head"><div><h1 class="title">威望系統</h1><div class="subtitle">累積威望值提升階級 ‧ 共 ${DB.prestige.length} 階</div></div></div><div class="tblwrap"><table class="tbl"><thead><tr><th>階級</th><th>稱號</th><th>威望值範圍</th><th>能力加成</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
+
+/* 其他系統資料查看 */
+const CARDFMT={
+ star:r=>`<div class="cc"><div class="cn">${esc(r.n)}</div><div class="cmeta">${esc(r.c)} 星盤</div>${chips(r.s)}</div>`,
+ bless:r=>`<div class="cc"><div class="cn">${esc(r.n)}${r.r?' <span class="job">稀有</span>':''}</div>${chips(r.s)}</div>`,
+ refine:r=>`<div class="cc"><div class="cn">${esc(r.n)}</div>${chips(r.s)}</div>`,
+ color:r=>`<div class="cc"><div class="cn">${esc(r.n)}</div><div class="cmeta">${esc(TYPE[r.ty]||r.ty||'')}${r.p?' · 機率 '+r.p:''}</div>${chips(r.s)}</div>`,
+ bosscol:r=>`<div class="cc"><div class="cn">${esc(r.n)}</div><div class="cmeta">能力：${esc(r.d||'—')}</div></div>`,
+ achieve:r=>`<div class="cc"><div class="cn">${esc(r.n)}</div><div class="cmeta">能力：${esc(r.d||'—')}</div></div>`};
+const LISTMETA={star:['星盤 · 守護星','各星盤牌組能力加成'],bless:['祝福強化','物品祝福能力'],refine:['裝備洗練','洗練素質設定'],color:['炫色系統','炫色素質與機率'],bosscol:['BOSS 收集圖鑑','擊殺 BOSS 收集能力'],achieve:['成就圖鑑','完成成就的能力']};
+const LISTKEYS=['star','bless','refine','color','bosscol','achieve'];
+function listView(key){const m=LISTMETA[key];return `<div class="sec-head"><div><h1 class="title">${m[0]}</h1><div class="subtitle">${m[1]} ‧ 共 ${DB[key].length} 項</div></div></div><div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋名稱…" oninput="__f()"></div><span class="count" id="cnt"></span></div><div class="clist" id="rows"></div>`;}
+function listRender(key){const q=(el('q').value||'').trim();const CAP=400;let arr=DB[key];if(q)arr=arr.filter(x=>((x.n||'')+(x.c||'')+(x.d||'')).indexOf(q)>=0);const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total}`+(total>CAP?`（顯示前 ${CAP}，請用搜尋縮小）`:'');el('rows').innerHTML=show.map(CARDFMT[key]).join('')||'<div class="empty">找不到符合的資料</div>';}
+function preshopView(){const rows=DB.preshop.map(r=>`<tr><td class="nm">${esc(r.n)}</td><td class="idc">#${r.item}</td><td><span class="chip pos">${(r.price||0).toLocaleString()} 積分</span></td><td>${r.cnt}${r.en?' +'+r.en:''}</td><td>${r.daily?('每日 '+r.daily):'不限'}</td></tr>`).join('');return `<div class="sec-head"><div><h1 class="title">威望積分商店</h1><div class="subtitle">以威望積分兌換 ‧ 共 ${DB.preshop.length} 項</div></div></div><div class="tblwrap"><table class="tbl"><thead><tr><th>品項</th><th>道具</th><th>積分</th><th>數量/強化</th><th>每日限購</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
+function rebskillView(){const rows=DB.rebskill.map(r=>`<tr><td class="nm">${esc(r.n)}</td><td style="color:var(--gold2)">${r.lv} 轉</td><td>${r.dmg?('<span class="chip pos">傷害 '+r.dmg+'</span>'):'—'}</td><td>${r.rate?('<span class="chip">機率 '+r.rate+'%</span>'):'—'}</td></tr>`).join('');return `<div class="sec-head"><div><h1 class="title">轉生技能強化</h1><div class="subtitle">轉生後強化技能 ‧ 共 ${DB.rebskill.length} 項</div></div></div><div class="tblwrap"><table class="tbl"><thead><tr><th>技能</th><th>轉生</th><th>傷害</th><th>機率</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
+function clanView(){const lv=DB.clan.levels.map(r=>`<tr><td class="nm" style="color:var(--gold2)">${r.lv} 級</td><td>${chips(r.s)}</td><td><span class="chip">經驗 x${esc(r.exp)}</span></td></tr>`).join('');const up=DB.clan.upgrades.map(r=>{const m=(r.mat||'').split(',');const c=(r.cnt||'').split(',');const mm=m.map((x,i)=>x?('#'+x+'×'+(c[i]||'')):'').filter(Boolean).join('、');return `<tr><td class="nm" style="color:var(--gold2)">${r.lv} 級</td><td>${r.pk?('PK '+r.pk):'—'}</td><td class="idc">${esc(mm||'—')}</td></tr>`;}).join('');
+ return `<div class="sec-head"><div><h1 class="title">血盟養成</h1><div class="subtitle">血盟等級能力與升級需求</div></div></div><div class="blocktitle">等級能力</div><div class="tblwrap"><table class="tbl"><thead><tr><th>等級</th><th>能力加成</th><th>經驗</th></tr></thead><tbody>${lv}</tbody></table></div><div class="blocktitle">升級需求</div><div class="tblwrap"><table class="tbl"><thead><tr><th>等級</th><th>PK</th><th>材料（道具編號×數量）</th></tr></thead><tbody>${up}</tbody></table></div>`;}
+function more(){return `<div class="sec-head"><div><h1 class="title">其他系統</h1><div class="subtitle">角色進階與更多玩法 ‧ 皆可點入查看資料</div></div></div>
+ <div class="blocktitle">角色進階</div><div class="grid">${gc('pattern','','紋樣系統',DB.pattern.length+' 級')}${gc('rebirth','','轉生系統',DB.rebirth.length+' 筆')}${gc('rebskill','','轉生技能',DB.rebskill.length+' 項')}${gc('prestige','','威望系統',DB.prestige.length+' 階')}${gc('clan','','血盟養成',DB.clan.levels.length+' 級')}</div>
+ <div class="blocktitle">強化 / 外觀</div><div class="grid">${gc('star','','星盤守護星',DB.star.length+' 項')}${gc('bless','','祝福強化',DB.bless.length+' 項')}${gc('refine','','裝備洗練',DB.refine.length+' 項')}${gc('color','','炫色系統',DB.color.length+' 項')}</div>
+ <div class="blocktitle">收集 / 商店</div><div class="grid">${gc('bosscol','','BOSS收集',DB.bosscol.length+' 項')}${gc('achieve','','成就圖鑑',DB.achieve.length+' 項')}${gc('preshop','','威望商店',DB.preshop.length+' 項')}</div>`;}
+
+let cur='home';
+const R={home,settings,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,
+ doll:()=>cardView('doll','娃娃系統','召喚娃娃並蒐集卡片累積能力'),transform:()=>cardView('transform','變身系統','變身取得外觀與能力，含時效'),holy:()=>cardView('holy','聖物系統','聖物提供防禦與特殊素質'),
+ pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
+ star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};
+window.__f=function(){if(cur==='weapon')equipRender('weapon');else if(cur==='armor')equipRender('armor');else if(cur==='doll')cardRender('doll');else if(cur==='transform')cardRender('transform');else if(cur==='holy')cardRender('holy');else if(cur==='pattern')patternRender();else if(LISTKEYS.indexOf(cur)>=0)listRender(cur);};
+function go(s){if(!R[s])s='home';cur=s;app.innerHTML=R[s]();document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.s===s));
+ if(s==='weapon')equipRender('weapon');if(s==='armor')equipRender('armor');if(s==='doll')cardRender('doll');if(s==='transform')cardRender('transform');if(s==='holy')cardRender('holy');if(s==='pattern')patternRender();if(LISTKEYS.indexOf(s)>=0)listRender(s);
+ if(s==='home')initHeroFx();window.scrollTo(0,0);if(window.innerWidth<=900)closeNav();history.replaceState(null,'','#'+s);}
+window.__go=go;
+window.__art=function(kind,i){cur='article';let html='';
+ if(kind==='news'){const n=(window.SITE_NEWS||NEWS_DEFAULT)[i]||['','','',''];html=`<div class="backbtn" onclick="__go('home')">← 返回首頁</div><div class="art"><div class="art-head"><div class="ann-badge2">${esc(n[1]||'')}</div><h1 class="title">${esc(n[2]||'')}</h1><div class="subtitle">${esc(n[0]||'')}</div></div><div class="art-body">${n[3]||'<p>（此公告尚未填寫內文，可在 assets/news.js 為該則加上第 4 欄內文）</p>'}</div></div>`;}
+ else if(kind==='setting'){html=`<div class="backbtn" onclick="__go('settings')">← 返回遊戲設定</div>`+renderSetting(SETTINGS[i]);}
+ app.innerHTML=html;document.querySelectorAll('#nav a').forEach(a=>a.classList.remove('on'));window.scrollTo(0,0);if(window.innerWidth<=900)closeNav();};
+document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a[data-s]');if(a)go(a.dataset.s);});
+document.querySelector('.nav-brand').addEventListener('click',()=>go('home'));
+app.addEventListener('click',e=>{const c=e.target.closest('[data-go]');if(c)go(c.dataset.go);});
+window.toggleNav=function(){el('nav').classList.toggle('open');};
+function closeNav(){el('nav').classList.remove('open');}
+go((location.hash||'#home').slice(1));
+})();
+</script></body></html>

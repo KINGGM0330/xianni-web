@@ -1,0 +1,11 @@
+# 暫存 / 合成過程 / 未使用檔案 — 不上傳到倉庫（本機仍保留）
+assets/_*.png
+assets/hero.png
+assets/logo_txt.png
+assets/3.png
+assets/4.png
+assets/放LOGO到這裡.txt
+
+# 系統雜項
+Thumbs.db
+.DS_Store

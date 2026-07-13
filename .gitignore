@@ -11,3 +11,9 @@ assets/發布小抄.txt
 # 系統雜項
 Thumbs.db
 .DS_Store
+
+# 未使用大圖 / 舊版遺留 — 不上傳(本機保留)
+assets/1.png
+assets/2.png
+assets/frame.png
+assets/index.html

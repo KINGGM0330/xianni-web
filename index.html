@@ -274,4 +274,14 @@ function go(s){if(!R[s])s='home';cur=s;if(s==='doll'||s==='transform'||s==='holy
 window.__go=go;
 window.__tier=function(kind,t){cardTier=t;app.innerHTML=R[kind]();cardRender(kind);};
 window.__art=function(kind,i){cur='article';let html='';
- if(kind==='news'){const n=(window.SITE_NEWS||NEWS_DEFAULT)[i]||['','','',''];html=`<div class="backbtn" onclick="__go('home')">← 返回首頁</div><div class="art"><div class="art-head"><div class="ann-
+ if(kind==='news'){const n=(window.SITE_NEWS||NEWS_DEFAULT)[i]||['','','',''];html=`<div class="backbtn" onclick="__go('home')">← 返回首頁</div><div class="art"><div class="art-head"><div class="ann-badge2">${esc(n[1]||'')}</div><h1 class="title">${esc(n[2]||'')}</h1><div class="subtitle">${esc(n[0]||'')}</div></div><div class="art-body">${n[3]||'<p>（此公告尚未填寫內文，可在 assets/news.js 為該則加上第 4 欄內文）</p>'}</div></div>`;}
+ else if(kind==='setting'){html=`<div class="backbtn" onclick="__go('settings')">← 返回遊戲設定</div>`+renderSetting(SETTINGS[i]);}
+ app.innerHTML=html;document.querySelectorAll('#nav a').forEach(a=>a.classList.remove('on'));window.scrollTo(0,0);if(window.innerWidth<=900)closeNav();};
+document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a[data-s]');if(a)go(a.dataset.s);});
+document.querySelector('.nav-brand').addEventListener('click',()=>go('home'));
+app.addEventListener('click',e=>{const c=e.target.closest('[data-go]');if(c)go(c.dataset.go);});
+window.toggleNav=function(){el('nav').classList.toggle('open');};
+function closeNav(){el('nav').classList.remove('open');}
+go((location.hash||'#home').slice(1));
+})();
+</script></body></html>

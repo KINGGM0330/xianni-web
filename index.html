@@ -120,6 +120,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <a data-s="more"><span class="ic">📚</span>其他系統</a>
 <a data-s="drop"><span class="ic">💧</span>掉落查詢</a>
 <a data-s="promo"><span class="ic">🎁</span>推薦好友</a>
+<a id="dl" href="#" target="_blank" rel="noopener"><span class="ic">⬇️</span>遊戲下載</a>
 </nav></div></header>
 <main class="main"><div class="content" id="app"></div></main>
 <div class="fab" title="回頂部" onclick="scrollTo({top:0,behavior:'smooth'})">⚡</div>
@@ -284,6 +285,7 @@ document.querySelector('.nav-brand').addEventListener('click',()=>go('home'));
 app.addEventListener('click',e=>{const c=e.target.closest('[data-go]');if(c)go(c.dataset.go);});
 window.toggleNav=function(){el('nav').classList.toggle('open');};
 function closeNav(){el('nav').classList.remove('open');}
+(function(){var d=document.getElementById('dl');if(d)d.href=(window.DOWNLOAD_URL||'#');})();
 go((location.hash||'#home').slice(1));
 })();
 </script></body></html>

@@ -119,6 +119,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <a data-s="cards"><span class="ic">🎴</span>卡冊系統</a>
 <a data-s="more"><span class="ic">📚</span>其他系統</a>
 <a data-s="drop"><span class="ic">💧</span>掉落查詢</a>
+<a data-s="promo"><span class="ic">🎁</span>推薦好友</a>
 </nav></div></header>
 <main class="main"><div class="content" id="app"></div></main>
 <div class="fab" title="回頂部" onclick="scrollTo({top:0,behavior:'smooth'})">⚡</div>
@@ -262,8 +263,9 @@ function galleryRender(){const q=(el('q').value||'').trim();const CAP=600;let ar
 function dropView(){const maps=[...new Set(window.DROP.flatMap(x=>x.p))].sort();return `<div class="sec-head"><div><h1 class="title">掉落查詢</h1><div class="subtitle">共 ${window.DROP.length} 種怪物 ‧ 可用 地圖／怪物／物品 關鍵字查詢</div></div></div><div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋 怪物 / 物品 / 地圖…" oninput="__f()"></div><select class="self" id="mp" onchange="__f()"><option value="">全部地圖</option>${maps.map(m=>`<option>${esc(m)}</option>`).join('')}</select><span class="count" id="cnt"></span></div><div class="clist" id="rows" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))"></div>`;}
 function dropRender(){const q=(el('q').value||'').trim();const mf=el('mp')?el('mp').value:'';const CAP=300;let arr=window.DROP;if(mf)arr=arr.filter(x=>x.p.indexOf(mf)>=0);if(q)arr=arr.filter(x=>x.m.indexOf(q)>=0||x.i.some(i=>i.indexOf(q)>=0)||x.p.some(p=>p.indexOf(q)>=0));const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total} 種怪物`+(total>CAP?`（顯示前 ${CAP}，請縮小範圍）`:'');el('rows').innerHTML=show.map(x=>`<div class="cc" style="text-align:left"><div class="cn">${esc(x.m)}</div><div class="cmeta">📍 ${x.p.length?x.p.map(esc).join('、'):'—'}</div><div style="margin-top:6px;line-height:1.9">${x.i.map(i=>`<span class="chip">${esc(i)}</span>`).join(' ')}</div></div>`).join('')||'<div class="empty">找不到符合的掉落</div>';}
 
+function promoView(){return `<div class="sec-head"><div><h1 class="title">🎁 推薦好友拿獎勵</h1><div class="subtitle">邀好友一起玩，達標後雙方都領好禮！</div></div></div><iframe src="https://promo.kinggm.cc.cd/" style="width:100%;height:1500px;border:0;border-radius:12px;background:#12100c" title="推薦好友"></iframe>`;}
 let cur='home';
-const R={home,settings,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,
+const R={home,settings,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,
  doll:()=>cardView('doll','娃娃系統','召喚娃娃並蒐集卡片累積能力'),transform:()=>cardView('transform','變身系統','變身取得外觀與能力，含時效'),holy:()=>cardView('holy','聖物系統','聖物提供防禦與特殊素質'),
  pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
  star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};

@@ -268,7 +268,7 @@ const JS_NEG=['AC'];
 function jsChip(k,v){const neg=JS_NEG.indexOf(k)>=0;const cls=neg?'neg':(v>0?'pos':'');const sign=(v>0&&!neg)?'+':'';return `<span class="chip ${cls}">${esc(k)}<b>${sign}${v}</b></span>`;}
 function jsChips(o){return '<div class="chips">'+Object.keys(o).map(k=>jsChip(k,o[k])).join('')+'</div>';}
 function jobsetView(){
- return `<div class="sec-head"><div><h1 class="title">職業裝備</h1><div class="subtitle">6 職業 × 8 部位 = 48 件 ‧ 數值取自本服資料庫（含套裝加成）</div></div><span class="count">共 ${JOBSET.sets.length} 套</span></div>
+ return `<div class="sec-head"><div><h1 class="title">職業裝備</h1><div class="subtitle">5 職業 × 8 部位 = 40 件 ‧ 數值取自本服資料庫（含套裝加成）</div></div><span class="count">共 ${JOBSET.sets.length} 套</span></div>
   <div id="jsbar" style="margin:4px 0 14px"></div><div id="jsbody"></div>`;
 }
 function jobsetRender(){

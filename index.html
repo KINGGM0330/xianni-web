@@ -117,7 +117,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <a data-s="settings"><span class="ic">⚙️</span>遊戲設定</a>
 <a data-s="more"><span class="ic">📚</span>其他系統</a>
 <a data-s="drop"><span class="ic">💧</span>掉落查詢</a>
-<a data-s="jobset"><span class="ic">🛡️</span>職業裝備</a>
+<a data-s="upgrade"><span class="ic">🛡️</span>升階裝備</a>
 <a data-s="invite"><span class="ic">🎁</span>產生推薦碼</a>
 <a data-s="promo"><span class="ic">📣</span>推廣中心</a>
 <a id="dl" href="#" target="_blank" rel="noopener"><span class="ic">⬇️</span>遊戲下載</a>
@@ -179,13 +179,6 @@ function home(){
    ${gc('armor','','防具/飾品',DB.armor.length+' 件')}
    ${gc('cards','','卡冊系統','娃娃/變身/聖物')}
    ${gc('more','','其他系統','紋樣/轉生/威望…')}
- </div>
- <div class="blocktitle">升階裝備</div>
- <div class="grid">
-   ${gc('jobset','','職業套裝',JOBSET.sets.length+' 套 × 8 件')}
-   ${gc('upweapon','','升階武器',UPG.weapon.length+' 把')}
-   ${gc('upacc','','升階飾品',UPG.acc.length+' 件')}
-   ${gc('upbadge','','肩甲 / 徽章',UPG.badge.length+' 件')}
  </div>
  <div class="foot">仙逆天堂 King of Lineage ‧ 官方情報站<br>資料取自本服資料庫，僅供參考，實際數值以遊戲內為準</div>`;
 }
@@ -355,13 +348,25 @@ const UPG=window.UPG||{weapon:[],acc:[],badge:[]};
 function upHead(t,sub,c){return `<div class="sec-head"><div><h1 class="title">${t}</h1><div class="subtitle">${sub}</div></div><span class="count">共 ${c} 件</span></div>`;}
 function upJb(a){return (a&&a.length)?a.join(' / '):'—';}
 /* 一件裝備 = 一個 set-sec：升階版在上、前置在下（灰） */
+/* 道具圖：assets/icons/<圖號>.png；沒有那張圖就自動隱藏，不會破版 */
+function upIcon(g){return g?`<img src="assets/icons/${g}.png" loading="lazy" style="width:32px;height:32px;object-fit:contain;image-rendering:pixelated;vertical-align:middle;margin-right:8px" onerror="this.style.display='none'">`:'';}
 function upCard(x,extra){
  return `<div class="set-sec">
-  <div class="set-sec-t">${esc(x.n)}　<span style="font-weight:400;opacity:.75;font-size:13px">${esc(x.ty)} ‧ ${esc(upJb(x.jb))}</span></div>
+  <div class="set-sec-t">${upIcon(x.g)}${esc(x.n)}　<span style="font-weight:400;opacity:.75;font-size:13px">${esc(x.ty)} ‧ ${esc(upJb(x.jb))}</span></div>
   <div class="set-row"><span class="set-l">升階版</span><span class="set-v">${jsChips(x.s)}</span></div>
-  <div class="set-row" style="opacity:.6"><span class="set-l">前置 ${esc(x.oldn)}</span><span class="set-v">${jsChips(x.os)}</span></div>
+  <div class="set-row" style="opacity:.6"><span class="set-l">${upIcon(x.og)}前置 ${esc(x.oldn)}</span><span class="set-v">${jsChips(x.os)}</span></div>
   ${extra||''}
  </div>`;
+}
+/* 升階裝備總覽（nav「升階裝備」進來的那一頁）—— 只有 4 顆按鈕 */
+function upgradeHub(){
+ return `<div class="sec-head"><div><h1 class="title">升階裝備</h1><div class="subtitle">職業套裝 ‧ 武器 ‧ 飾品 ‧ 肩甲徽章 —— 點進去看逐件數值與前置對照</div></div></div>
+  <div class="grid">
+   ${gc('jobset','','職業套裝',JOBSET.sets.length+' 套 × 8 件')}
+   ${gc('upweapon','','升階武器',UPG.weapon.length+' 把')}
+   ${gc('upacc','','升階飾品',UPG.acc.length+' 件')}
+   ${gc('upbadge','','肩甲 / 徽章',UPG.badge.length+' 件')}
+  </div>`;
 }
 function upWeaponView(){
  const body=UPG.weapon.map(x=>{
@@ -394,7 +399,7 @@ function upBadgeView(){
   +UPG.badge.map(x=>upCard(x,upEnhTbl(x))).join('')
   +`<div class="note">表格內括號是前置裝的數值，方便對照。徽章強化上限為 +9（+10 那列已預留）。磐守徽章維持王族／騎士專屬。</div>`;
 }
-const R={home,settings,event:eventView,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
+const R={home,settings,event:eventView,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
  doll:()=>cardView('doll','娃娃系統','召喚娃娃並蒐集卡片累積能力'),transform:()=>cardView('transform','變身系統','變身取得外觀與能力，含時效'),holy:()=>cardView('holy','聖物系統','聖物提供防禦與特殊素質'),
  pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
  star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};

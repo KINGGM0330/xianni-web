@@ -22,3 +22,15 @@
 index.html
 assets/：hero_bg.png、logo.png、logo_t.png、logo_anim.webp、news.js、1.png、2.png
 ========================================================
+
+【★ 為什麼以前要按 Ctrl+F5 才看得到新版（2026-08-10 已修）】
+原因：瀏覽器把 index.html 整頁快取住了。index.html 一被快取，
+      裡面 news.js / upgrade.js 的 ?v=版本號根本讀不到，連 JS 也一起停在舊版。
+      -> 對玩家來說就是「你更新了、他看不到」。
+修法：根目錄新增 `_headers` 檔（Cloudflare Pages 專用），
+      把 html / js 設成「每次都跟伺服器確認」，圖片維持快取 1 天。
+      跟著 git push 上去就生效，不用在 Cloudflare 後台設定。
+驗證：F12 -> Network -> 點 index.html -> Response Headers 要有
+      cache-control: public, max-age=0, must-revalidate
+注意：`_headers` 這個檔名不能改、也不能放進子資料夾，必須在網站根目錄。
+========================================================

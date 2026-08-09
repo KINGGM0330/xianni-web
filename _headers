@@ -1,0 +1,41 @@
+# Cloudflare Pages 快取規則（2026-08-10 新增）
+#
+# 【為什麼要有這個檔】
+#   之前每次更新，要自己按 Ctrl+F5 才看得到新版 —— 代表瀏覽器把 index.html 整頁
+#   快取起來了。index.html 一被快取，裡面 news.js / upgrade.js 的 ?v=xxxxxx
+#   版本號**根本讀不到**，所以連 JS 也一起停在舊版。
+#   ⇒ 對玩家來說就是「你更新了、他看不到」。
+#
+# 【這個檔怎麼解】
+#   把 html / js / json 設成「每次都要跟伺服器確認」（must-revalidate）。
+#   沒改過的話伺服器回 304，只有幾百 bytes，不會變慢；
+#   一改過就立刻拿到新的，**玩家不用按 Ctrl+F5**。
+#
+#   圖片（icons / img / sets）維持快取 1 天 —— 那幾千張很少動，
+#   天天重抓沒意義。真的換了圖最多隔一天生效（急的話改檔名或自己 Ctrl+F5）。
+#
+# 【放哪裡 / 怎麼生效】
+#   這個檔要放在**網站根目錄**（Cloudflare Pages 的 Build output directory = /，
+#   所以就是這個資料夾）。跟著 git push 上去，Pages 部署後自動生效，不用設定。
+#
+# 【怎麼驗證有沒有生效】
+#   瀏覽器 F12 -> Network -> 點 index.html -> 看 Response Headers
+#   要出現  cache-control: public, max-age=0, must-revalidate
+
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/icons/*
+  Cache-Control: public, max-age=86400
+
+/assets/img/*
+  Cache-Control: public, max-age=86400
+
+/assets/sets/*
+  Cache-Control: public, max-age=86400
+
+/assets/*.png
+  Cache-Control: public, max-age=86400
+
+/assets/*.webp
+  Cache-Control: public, max-age=86400

@@ -1,0 +1,26 @@
+# 只做兩件事，刻意不動其他檔案的行尾（避免一次性把整個倉庫重新正規化，
+# 那會產生一筆「幾十個檔都改了」的假 diff，反而看不出真正改了什麼）
+#
+# ① 圖檔／二進位資產明確標成 binary —— 絕對不能被行尾轉換碰到，碰了就壞檔
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.tbt  binary
+*.pak  binary
+*.zip  binary
+
+# ② Cloudflare Pages 的設定檔固定 LF（它兩種都吃，統一比較乾淨）
+_headers    text eol=lf
+_redirects  text eol=lf
+
+# ─────────────────────────────────────────────────────────────
+# 關於 push 時那一串
+#   warning: in the working copy of 'xxx', LF will be replaced by CRLF...
+# 那是 Windows 版 git 的 core.autocrlf 在轉行尾，**完全無害**，
+# 檔案內容不會壞、Cloudflare 拿到的也一樣。
+# 真的覺得吵，在這個資料夾跑一次就不會再出現：
+#     git config core.autocrlf false
+# （只影響這個倉庫，不影響其他專案）

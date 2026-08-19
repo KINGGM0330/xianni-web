@@ -17,3 +17,6 @@ assets/1.png
 assets/2.png
 assets/frame.png
 assets/index.html
+
+# 本機 HTML 備份，不進 Git（本機仍保留）
+index.html.bak_*

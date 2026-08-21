@@ -20,6 +20,8 @@ if not exist ".git" (
 
 echo [0/4] Removing local backup files from Git tracking (files stay on disk)...
 git rm --cached --ignore-unmatch index.html.bak_*
+git rm --cached --ignore-unmatch "*.bak_*"
+git rm --cached --ignore-unmatch "assets/*.bak_*"
 
 echo [1/4] Staging changes...
 git add -A

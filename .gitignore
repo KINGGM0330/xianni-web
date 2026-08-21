@@ -18,5 +18,9 @@ assets/2.png
 assets/frame.png
 assets/index.html
 
-# 本機 HTML 備份，不進 Git（本機仍保留）
+# 本機備份，不進 Git（本機仍保留）
+# ★ 用通用樣式，不要只列 index.html —— 2026-08-22 產生器把
+#   assets\game-data.js.bak_* 丟在這裡，被 git add -A 一起推上 GitHub 了。
 index.html.bak_*
+*.bak_*
+assets/*.bak_*

@@ -18,6 +18,22 @@ if not exist ".git" (
   git remote add origin https://github.com/KINGGM0330/xianni-web.git
 )
 
+REM  Cache busting. Each script tag in index.html loads its JS with a
+REM  "?v=..." suffix. That suffix is the cache key for browsers and for
+REM  Cloudflare: same URL means the old cached copy is served no matter
+REM  what the file now contains, so an update looks like it did nothing.
+REM  _cachebust.py rewrites every ?v= to that file's own MD5.
+echo [0/4] Refreshing cache-busting version numbers...
+set "PY="
+where python >nul 2>&1 && set "PY=python"
+if not defined PY where py >nul 2>&1 && set "PY=py"
+if defined PY (
+  %PY% "_cachebust.py"
+) else (
+  echo   [WARN] python not found - version numbers NOT updated.
+  echo   [WARN] Visitors may keep seeing the cached old files.
+)
+
 echo [0/4] Removing local backup files from Git tracking (files stay on disk)...
 git rm --cached --ignore-unmatch index.html.bak_*
 git rm --cached --ignore-unmatch "*.bak_*"

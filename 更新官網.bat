@@ -27,11 +27,18 @@ echo [0/4] Refreshing cache-busting version numbers...
 set "PY="
 where python >nul 2>&1 && set "PY=python"
 if not defined PY where py >nul 2>&1 && set "PY=py"
-if defined PY (
-  %PY% "_cachebust.py"
-) else (
-  echo   [WARN] python not found - version numbers NOT updated.
-  echo   [WARN] Visitors may keep seeing the cached old files.
+if not defined PY (
+  echo [STOP] python not found. Cannot cache-bust or verify. No push.
+  goto end
+)
+%PY% "_cachebust.py"
+
+echo [0b/4] Verifying game-data.js + index IIFE window mounts...
+%PY% "%~dp0..\kingskill\scripts\verify_bigfile.py" "%~dp0."
+if errorlevel 1 (
+  echo.
+  echo [STOP] verify_bigfile failed. No commit/push.
+  goto end
 )
 
 echo [0/4] Removing local backup files from Git tracking (files stay on disk)...

@@ -130,7 +130,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <script src="assets/rank.js?v=bce19c14"></script>
 <script src="assets/game-data.js?v=66f6f63b"></script>
 <script>(function(){
-const DB=window.DB, app=document.getElementById('app');
+const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
 const el=id=>document.getElementById(id);
 const ic=id=>{const g=window.ICON&&window.ICON[id];return g?`<img src="assets/icons/${g}.png" loading="lazy" style="width:34px;height:34px;object-fit:contain;image-rendering:pixelated;flex:none" onerror="this.style.display='none'">`:'';};
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -209,7 +209,7 @@ function equipView(kind){const isW=kind==='weapon';const title=isW?'武器資訊
  return `<div class="sec-head"><div><h1 class="title">${title}</h1><div class="subtitle">共 ${DB[kind].length} 件 ‧ 資料取自本服資料庫（僅供參考）</div></div></div>
   <div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋名稱…" oninput="__f()"></div>
     <select class="self" id="ty" onchange="__f()"><option value="">全部類型</option>${types.map(t=>`<option value="${esc(t)}">${esc(TYPE[t]||t)}</option>`).join('')}</select>
-    <select class="self" id="jb" onchange="__f()"><option value="">全部職業</option>${['王族','騎士','法師','妖精','黑妖','龍騎士','幻術師','戰士'].map(j=>`<option>${j}</option>`).join('')}</select>
+    <select class="self" id="jb" onchange="__f()"><option value="">全部職業</option>${['王族','騎士','法師','妖精','黑妖'].map(j=>`<option>${j}</option>`).join('')}</select>
     <span class="count" id="cnt"></span></div>
   <div class="tblwrap"><table class="tbl"><thead><tr><th>名稱</th><th>類型</th>${isW?'':'<th>AC</th>'}<th>可用職業</th><th>附加能力</th></tr></thead><tbody id="rows"></tbody></table></div>`;}
 function equipRender(kind){const q=(el('q').value||'').trim(),ty=el('ty').value,jb=el('jb').value;const isW=kind==='weapon',CAP=400;
@@ -270,10 +270,12 @@ const JS_NEG=['AC'];
 function jsChip(k,v){const pct=/%$/.test(k);const lbl=pct?k.slice(0,-1):k;const neg=JS_NEG.indexOf(k)>=0;const cls=neg?'neg':(v>0?'pos':'');const sign=(v>0&&!neg)?'+':'';return `<span class="chip ${cls}">${esc(lbl)}<b>${sign}${v}${pct?'%':''}</b></span>`;}
 function jsChips(o){return '<div class="chips">'+Object.keys(o).map(k=>jsChip(k,o[k])).join('')+'</div>';}
 function jobsetView(){
- return `<div class="sec-head"><div><h1 class="title">職業裝備</h1><div class="subtitle">6 職業 × 8 部位 = 48 件 ‧ 數值取自本服資料庫（含套裝加成）</div></div><span class="count">共 ${JOBSET.sets.length} 套</span></div>
+ if(!JOBSET||!JOBSET.sets) return `<div class="sec-head"><div><h1 class="title">職業裝備</h1><div class="subtitle">資料還沒產生</div></div></div>`;
+ return `<div class="sec-head"><div><h1 class="title">職業裝備</h1><div class="subtitle">6 套 × 8 部位 = 48 件 ‧ 數值取自本服資料庫（含套裝加成）</div></div><span class="count">共 ${JOBSET.sets.length} 套</span></div>
   <div id="jsbar" style="margin:4px 0 14px"></div><div id="jsbody"></div>`;
 }
 function jobsetRender(){
+ if(!JOBSET||!JOBSET.sets) return;
  const bar=el('jsbar'),body=el('jsbody');if(!bar||!body)return;
  bar.innerHTML=JOBSET.sets.map((s,i)=>{const on=i===jobsetIdx;
    return `<button onclick="__jobset(${i})" style="padding:6px 15px;margin:0 7px 7px 0;border-radius:16px;cursor:pointer;font-size:13px;border:1px solid ${s.col};background:${on?s.col:'transparent'};color:${on?'#12101c':s.col};font-weight:${on?'800':'500'}">${esc(s.n)}<span style="opacity:.75;font-size:11px;margin-left:5px">${esc(s.c)}</span></button>`;
@@ -317,12 +319,12 @@ window.__jobset=function(i){jobsetIdx=i;jobsetRender();};
 
 function dropView(){
 const regions=[...new Set(window.DROP.filter(x=>x.m.indexOf('📍')===0).flatMap(x=>x.p))].sort();
-window.__dcat='all';
+window.__dcat='all';window.__dropPage=1;
 return `<div class="sec-head"><div><h1 class="title">掉落查詢</h1><div class="subtitle">怪物掉落 ‧ 全服／全BOSS／地區掉落 ‧ 可用 怪物／物品／地圖 關鍵字查詢</div></div></div>
 <style>.dbtn{padding:6px 12px;border-radius:20px;border:1px solid var(--line,#2a3040);background:#12151f;color:var(--mut,#9aa3b5);cursor:pointer;font-size:13px;margin:0 6px 8px 0}.dbtn.on{background:#2a2f42;color:var(--gold2,#e8c766);border-color:var(--gold2,#e8c766)}</style>
 <div style="margin-bottom:8px"><button class="dbtn on" id="dc_all" onclick="dsetcat('all')">全部</button><button class="dbtn" id="dc_server" onclick="dsetcat('server')">🌐 全服掉落</button><button class="dbtn" id="dc_boss" onclick="dsetcat('boss')">👑 全BOSS</button><button class="dbtn" id="dc_region" onclick="dsetcat('region')">📍 地區掉落</button><button class="dbtn" id="dc_mob" onclick="dsetcat('mob')">👹 怪物掉落</button></div>
 <div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋 怪物 / 物品 / 地圖…" oninput="__f()"></div><select class="self" id="rg" onchange="dsetcat('region')"><option value="">全部地區</option>${regions.map(m=>`<option>${esc(m)}</option>`).join('')}</select><span class="count" id="cnt"></span></div>
-<div class="clist" id="rows" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))"></div>`;}
+<div id="dpager" style="margin:8px 0;display:flex;flex-wrap:wrap;align-items:center"></div><div class="clist" id="rows" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))"></div>`;}
 
 function dropRender(){
 const q=(el('q').value||'').trim();const rg=el('rg')?el('rg').value:'';const cat=window.__dcat||'all';const CAP=300;
@@ -334,18 +336,42 @@ else if(cat==='region')arr=arr.filter(x=>x.m.indexOf('📍')===0);
 else if(cat==='mob')arr=arr.filter(x=>!sp(x.m));
 if(rg)arr=arr.filter(x=>x.p.indexOf(rg)>=0);
 if(q)arr=arr.filter(x=>hit(x.m,q)||x.i.some(i=>hit(i,q))||x.p.some(p=>hit(p,q)));
-const total=arr.length,show=arr.slice(0,CAP);
-el('cnt').textContent=`符合 ${total} 筆`+(total>CAP?`（顯示前 ${CAP}，請縮小範圍）`:'');
+const total=arr.length;
+const key=cat+'|'+rg+'|'+q;
+if(window.__dropKey!==key){window.__dropKey=key;window.__dropPage=1;}
+const needPage=!q&&(cat==='all'||cat==='mob');
+const PAGE=300;
+let show;
+const pagerEl=el('dpager');
+if(needPage){
+ const pages=Math.max(1,Math.ceil(total/PAGE)||1);
+ let page=window.__dropPage||1;
+ if(page<1)page=1;if(page>pages)page=pages;
+ window.__dropPage=page;
+ show=arr.slice((page-1)*PAGE,page*PAGE);
+ el('cnt').textContent=`符合 ${total} 筆`+(pages>1?`（第 ${page}/${pages} 頁）`:'');
+ if(pagerEl){
+  if(pages>1){
+   const btn=(p,lab,dis)=>`<button class="dbtn"${dis?' disabled style="opacity:.35;cursor:not-allowed"':` onclick="__dropGo(${p})"`}>${lab}</button>`;
+   pagerEl.innerHTML=btn(page-1,'上一頁',page<=1)+`<span class="count" style="margin:0 8px">第 ${page} / ${pages} 頁</span>`+btn(page+1,'下一頁',page>=pages);
+  }else pagerEl.innerHTML='';
+ }
+}else{
+ show=arr.slice(0,CAP);
+ el('cnt').textContent=`符合 ${total} 筆`+(total>CAP?`（顯示前 ${CAP}，請縮小範圍）`:'');
+ if(pagerEl)pagerEl.innerHTML='';
+}
 el('rows').innerHTML=show.map(x=>`<div class="cc" style="text-align:left"><div class="cn">${esc(x.m)}</div><div class="cmeta">📍 ${x.p.length?x.p.map(esc).join('、'):'—'}</div><div style="margin-top:6px;line-height:1.9">${x.i.map(i=>`<span class="chip">${esc(i)}</span>`).join(' ')}</div></div>`).join('')||'<div class="empty">找不到符合的掉落</div>';}
-window.dsetcat=function(c){window.__dcat=c;['all','server','boss','region','mob'].forEach(k=>{const bb=el('dc_'+k);if(bb)bb.classList.toggle('on',k===c);});if(c!=='region'&&el('rg'))el('rg').value='';window.__f();};
+window.dsetcat=function(c){window.__dcat=c;window.__dropPage=1;['all','server','boss','region','mob'].forEach(k=>{const bb=el('dc_'+k);if(bb)bb.classList.toggle('on',k===c);});if(c!=='region'&&el('rg'))el('rg').value='';window.__f();};
+window.__dropGo=function(p){window.__dropPage=p;window.__f();};
 
 function promoView(){return `<div class="sec-head"><div><h1 class="title">📣 推廣中心</h1><div class="subtitle">複製專屬文案去分享、貼文截圖回報，AI 核查通過每晚統一發獎！</div></div></div><iframe src="https://report.kingage.cc.cd/" allow="clipboard-write" style="width:100%;height:1500px;border:0;border-radius:12px;background:#12100c" title="推廣中心"></iframe><div style="text-align:center;margin-top:10px"><a href="https://report.kingage.cc.cd/" target="_blank" rel="noopener" style="color:var(--gold2,#e8c766);font-size:12px">若上方沒有顯示，點此開新視窗 →</a></div>`;}
-function inviteView(){return `<div class="sec-head"><div><h1 class="title">🎁 產生推薦碼</h1><div class="subtitle">先在這裡取得你的專屬推薦碼，再去「📣 推廣中心」複製文案分享！</div></div></div><iframe src="https://promo.kingage.cc.cd/" style="width:100%;height:1500px;border:0;border-radius:12px;background:#12100c" title="產生推薦碼"></iframe><div style="text-align:center;margin-top:10px"><a href="https://promo.kingage.cc.cd/" target="_blank" rel="noopener" style="color:var(--gold2,#e8c766);font-size:12px">若上方沒有顯示，點此開新視窗 →</a></div>`;}
+function inviteView(){return `<div class="sec-head"><div><h1 class="title">🎁 產生推薦碼</h1><div class="subtitle">先在這裡取得你的專屬推薦碼，再去「📣 推廣中心」複製文案分享！</div></div></div><iframe src="https://promo.kingage.cc.cd/" allow="clipboard-write" style="width:100%;height:1500px;border:0;border-radius:12px;background:#12100c" title="產生推薦碼"></iframe><div style="text-align:center;margin-top:10px"><a href="https://promo.kingage.cc.cd/" target="_blank" rel="noopener" style="color:var(--gold2,#e8c766);font-size:12px">若上方沒有顯示，點此開新視窗 →</a></div>`;}
 let cur='home';
 /* ===== 升階裝備（武器 / 飾品 / 肩甲徽章）=====
    資料在 assets/upgrade.js（window.UPG），由 官網_職業裝備產生器\4_產生UPG.py 產生。
    依 King 指示：只放裝備數值與前置對照，不放材料／取得方式。 */
-const UPG=window.UPG||{weapon:[],acc:[],badge:[]};
+const UPG=window.UPG;
 function upHead(t,sub,c){return `<div class="sec-head"><div><h1 class="title">${t}</h1><div class="subtitle">${sub}</div></div><span class="count">共 ${c} 件</span></div>`;}
 function upJb(a){return (a&&a.length)?a.join(' / '):'—';}
 /* 一件裝備 = 一個 set-sec：升階版在上、前置在下（灰） */
@@ -361,6 +387,7 @@ function upCard(x,extra){
 }
 /* 升階裝備總覽（nav「升階裝備」進來的那一頁）—— 只有 4 顆按鈕 */
 function upgradeHub(){
+ if(!JOBSET||!JOBSET.sets||!UPG) return `<div class="sec-head"><div><h1 class="title">升階裝備</h1><div class="subtitle">資料還沒產生</div></div></div>`;
  return `<div class="sec-head"><div><h1 class="title">升階裝備</h1><div class="subtitle">職業套裝 ‧ 武器 ‧ 飾品 ‧ 肩甲徽章 —— 點進去看逐件數值與前置對照</div></div></div>
   <div class="grid">
    ${gc('jobset','','職業套裝',JOBSET.sets.length+' 套 × 8 件')}
@@ -370,6 +397,7 @@ function upgradeHub(){
   </div>`;
 }
 function upWeaponView(){
+ if(!UPG||!UPG.weapon) return `<div class="sec-head"><div><h1 class="title">升階武器</h1><div class="subtitle">資料還沒產生</div></div></div>`;
  const body=UPG.weapon.map(x=>{
    const sk=(x.sk&&Object.keys(x.sk).length)?`<div class="set-row"><span class="set-l">武技（升階）</span><span class="set-v">${jsChips(x.sk)}</span></div>
   <div class="set-row" style="opacity:.6"><span class="set-l">武技（前置）</span><span class="set-v">${jsChips(x.osk)}</span></div>`:'';
@@ -379,6 +407,7 @@ function upWeaponView(){
   `<div class="note">小怪／大怪傷害為等比 +15%、傷害修正 +30%（弓與法杖的基礎值天生偏低，用固定增量會失衡）。升階後強化值、洗鍊素質、附加能力、炫色全部保留。</div>`;
 }
 function upAccView(){
+ if(!UPG||!UPG.acc) return `<div class="sec-head"><div><h1 class="title">升階飾品</h1><div class="subtitle">資料還沒產生</div></div></div>`;
  return upHead('升階飾品','戒指 3 ‧ 耳環 3 ‧ 項鏈 3 ‧ 一個角色可同時裝備 5 件（戒指2＋耳環2＋項鏈1）',UPG.acc.length)
   +UPG.acc.map(x=>upCard(x)).join('')
   +`<div class="note">飾品強化上限為 +8。項鏈的招牌效果（攻擊時追加傷害）也一併提升：機率 50%→60%、傷害 100~150 → 150~225。</div>`;
@@ -396,6 +425,7 @@ function upEnhTbl(x){
  return `<div class="tblwrap" style="margin:2px 0 0"><table class="tbl"><thead><tr><th>強化</th>${keys.map(k=>`<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function upBadgeView(){
+ if(!UPG||!UPG.badge) return `<div class="sec-head"><div><h1 class="title">肩甲 / 徽章</h1><div class="subtitle">資料還沒產生</div></div></div>`;
  return upHead('肩甲 / 徽章','肩甲 3 ‧ 徽章 4 ‧ 能力主要來自「每一階強化」的加成表',UPG.badge.length)
   +UPG.badge.map(x=>upCard(x,upEnhTbl(x))).join('')
   +`<div class="note">表格內括號是前置裝的數值，方便對照。徽章強化上限為 +9（+10 那列已預留）。磐守徽章維持王族／騎士專屬。</div>`;

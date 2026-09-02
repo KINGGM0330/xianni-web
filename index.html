@@ -4,13 +4,13 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#07060d;--panel:rgba(18,16,32,.72);--panel2:rgba(30,26,52,.6);--line:rgba(200,168,120,.16);--line2:rgba(200,168,120,.36);--gold:#e7c46a;--gold2:#ffe6a6;--gdim:#9a763c;--pur:#a582ff;--pur2:#7c4dff;--mag:#c060ff;--txt:#ece7f6;--dim:#b9b2d0;--mut:#7d7796;--grn:#43e0a0;--red:#ff7d7d;--blue:#63b3ff;--rad:14px}
-html,body{height:100%}
+html,body{height:100%;overflow-x:hidden;max-width:100%}
 body{font-family:-apple-system,'Microsoft JhengHei','PingFang TC',sans-serif;color:var(--txt);background:var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 ::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--gdim),var(--pur2));border-radius:9px}::-webkit-scrollbar-track{background:#0a0812}
 #fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .bgveil{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% -8%,rgba(124,77,255,.16),transparent 55%),radial-gradient(ellipse at 92% 108%,rgba(192,96,255,.10),transparent 55%),linear-gradient(rgba(8,6,14,.82),rgba(8,6,14,.90)),url(assets/hero_bg.png) center center / cover no-repeat fixed,#07060d}
-.nav{position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);background:linear-gradient(180deg,rgba(10,8,18,.94),rgba(10,8,18,.72));border-bottom:1px solid var(--line)}
+.nav{position:sticky;top:0;z-index:80;background:linear-gradient(180deg,rgba(10,8,18,.94),rgba(10,8,18,.72));border-bottom:1px solid var(--line)}.nav::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .nav::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--pur),transparent);opacity:.8}
 .nav-inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:10px 20px}
 .nav-brand{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:2px;font-size:18px;cursor:pointer;background:linear-gradient(135deg,var(--gold2),var(--gold) 50%,var(--pur));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(231,196,106,.3));white-space:nowrap}
@@ -75,7 +75,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 .tbl .nm{font-weight:700;color:var(--txt);white-space:nowrap}
 .tbl .idc{color:var(--mut);font-size:11px}
 .tblwrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--rad);overflow:auto;max-height:70vh;margin-bottom:14px}
-.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}.clbl{font-size:10px;color:var(--mut);font-weight:700;letter-spacing:.5px;margin:8px 0 4px}.cgrp-act .chip{background:rgba(231,196,106,.12);border-color:rgba(231,196,106,.28);color:#f0d9a0}.cgrp-act .chip.neg{background:rgba(255,125,125,.12);border-color:rgba(255,125,125,.28);color:#ffcaca}
 .chip{font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(99,179,255,.12);border:1px solid rgba(99,179,255,.25);color:#c3e0ff;white-space:nowrap}
 .chip b{color:#fff;font-weight:800;margin-left:2px}
 .chip.pos{background:rgba(67,224,160,.12);border-color:rgba(67,224,160,.28);color:#aef3d5}
@@ -104,8 +104,9 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 .set-l{color:var(--dim);font-size:13.5px}
 .set-v{color:var(--gold2);font-weight:800;font-size:13px;background:rgba(231,196,106,.1);border:1px solid rgba(231,196,106,.22);padding:3px 12px;border-radius:8px;white-space:nowrap}
 .foot{text-align:center;color:var(--mut);font-size:12px;padding:26px 0 0;border-top:1px solid var(--line);margin-top:30px;line-height:1.9}
+.embed-frame{display:block;width:100%;max-width:100%;height:100vh;min-height:100vh;height:100dvh;min-height:100dvh;border:0;border-radius:12px;background:#12100c}
 .fab{position:fixed;right:18px;bottom:18px;z-index:70;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,var(--gold2),var(--gdim));color:#231a06;font-size:22px;cursor:pointer;box-shadow:0 6px 24px rgba(231,196,106,.45)}
-@media(max-width:900px){.nav-links{position:fixed;top:59px;right:0;width:230px;height:calc(100vh - 59px);flex-direction:column;align-items:stretch;justify-content:flex-start;gap:2px;padding:12px;background:rgba(10,8,18,.98);border-left:1px solid var(--line2);transform:translateX(100%);transition:.25s;overflow-y:auto}.nav-links.open{transform:none}.nav-links a{padding:12px 14px}.burger{display:block}.content{padding:16px 14px 60px}.hero{margin:-16px -14px 6px}}
+@media(max-width:900px){.nav-links{position:fixed;top:59px;right:0;left:auto;z-index:90;width:min(230px,80vw);max-width:min(230px,80vw);height:calc(100dvh - 59px);flex-direction:column;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:2px;margin:0;padding:12px;background:rgba(10,8,18,.98);border-left:1px solid var(--line2);transform:translateX(100%);visibility:hidden;pointer-events:none;transition:transform .25s,visibility 0s linear .25s;overflow-x:hidden;overflow-y:auto}.nav-links.open,.nav-links.active{transform:none;visibility:visible;pointer-events:auto;transition:transform .25s,visibility 0s}.nav-links a{padding:12px 14px}.burger{display:block}.content{padding:16px 14px 60px;overflow-x:hidden}.hero{margin:-16px -14px 6px}body.nav-open{overflow:hidden}}
 </style></head><body>
 <canvas id="fx"></canvas><div class="bgveil"></div>
 <header class="nav"><div class="nav-inner">
@@ -113,22 +114,22 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <button class="burger" onclick="toggleNav()">☰</button>
 <nav class="nav-links" id="nav">
 <a data-s="home" class="on"><span class="ic">🏠</span>首頁</a>
+<a data-s="invite"><span class="ic">🎁</span>產生推薦碼</a>
+<a data-s="promo"><span class="ic">📣</span>推廣中心</a>
 <a data-s="event"><span class="ic">🕯️</span>鬼月活動</a>
 <a data-s="settings"><span class="ic">⚙️</span>遊戲設定</a>
 <a data-s="more"><span class="ic">📚</span>其他系統</a>
 <a data-s="drop"><span class="ic">💧</span>掉落查詢</a>
 <a data-s="upgrade"><span class="ic">🛡️</span>升階裝備</a>
 <a data-s="rank"><span class="ic">🏆</span>排行榜</a>
-<a data-s="invite"><span class="ic">🎁</span>產生推薦碼</a>
-<a data-s="promo"><span class="ic">📣</span>推廣中心</a>
 <a id="dl" href="#" target="_blank" rel="noopener"><span class="ic">⬇️</span>遊戲下載</a>
 </nav></div></header>
 <main class="main"><div class="content" id="app"></div></main>
 <div class="fab" title="回頂部" onclick="scrollTo({top:0,behavior:'smooth'})">⚡</div>
 <script src="assets/news.js?v=f4610519"></script>
 <script src="assets/upgrade.js?v=ee1d055f"></script>
-<script src="assets/rank.js?v=bce19c14"></script>
-<script src="assets/game-data.js?v=66f6f63b"></script>
+<script src="assets/rank.js?v=d4438358"></script>
+<script src="assets/game-data.js?v=815b4bbb"></script>
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
 const el=id=>document.getElementById(id);
@@ -150,7 +151,9 @@ try{DB.weapon.sort((a,b)=>a.id-b.id);DB.armor.sort((a,b)=>a.id-b.id);}catch(e){}
  (function loop(){x.clearRect(0,0,w,h);for(const p of ps){p.y-=p.s;p.x+=Math.sin(p.y*.01)*.15;if(p.y<-5){p.y=h+5;p.x=Math.random()*w;}x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba('+p.h+','+p.o+')';x.shadowBlur=8;x.shadowColor='rgba('+p.h+',.8)';x.fill();}requestAnimationFrame(loop);})();})();
 
 function chips(s){const keys=Object.keys(s||{});if(!keys.length)return '<span style="color:var(--mut);font-size:11px">—</span>';
- return '<div class="chips">'+keys.map(k=>{const v=s[k];const cls=(typeof v==='number'&&v<0)?'neg':'pos';return '<span class="chip '+cls+'">'+esc(k)+'<b>'+(v>0?'+':'')+v+'</b></span>';}).join('')+'</div>';}
+ return '<div class="chips">'+keys.map(k=>{const v=s[k];const n=(typeof v==='number')?v:null;const cls=(n!==null&&n<0)?'neg':'pos';const shown=(n!==null)?((n>0?'+':'')+n):String(v);return '<span class="chip '+cls+'">'+esc(k)+'<b>'+shown+'</b></span>';}).join('')+'</div>';}
+function chipBox(label,s,act){return '<div class="cgrp'+(act?' cgrp-act':'')+'"><div class="clbl">'+label+'</div>'+chips(s)+'</div>';}
+function cardStats(kind,r){const a=(kind==='transform')?'變身中':'召喚中';return chipBox('收集（永久）',r.s,false)+chipBox(a,r.p,true);}
 function jobs(arr){if(!arr||!arr.length)return '<span style="color:var(--mut);font-size:11px">全職</span>';if(arr.length>=8)return '<span class="job">全職業</span>';return '<div class="jobs">'+arr.map(j=>'<span class="job">'+esc(j)+'</span>').join('')+'</div>';}
 
 let heroRAF=null;
@@ -230,8 +233,8 @@ function tierBar(kind){
 }
 function cardView(kind,title,desc){return `<div class="sec-head"><div><h1 class="title">${title}</h1><div class="subtitle">${desc} ‧ 共 ${DB[kind].length} 張</div></div></div>${tierBar(kind)}<div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋卡片名稱…" oninput="__f()"></div><span class="count" id="cnt"></span></div><div class="clist" id="rows"></div>`;}
 function cardRender(kind){const q=(el('q').value||'').trim();const CAP=300;let arr=DB[kind];if(cardTier)arr=arr.filter(x=>x.tier===cardTier);if(q)arr=arr.filter(x=>hit(clean(x.n),q));const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total} 張`+(total>CAP?`（顯示前 ${CAP}）`:'');
- el('rows').innerHTML=show.map(r=>{const meta=(kind==='transform'&&r.t)?('變身時效 '+Math.round(r.t/60)+' 分'):'';const im=(window.CARDIMG&&window.CARDIMG[kind])?window.CARDIMG[kind][DB[kind].indexOf(r)]:'';const it=im?`<img src="assets/img/${im}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="this.style.display='none'">`:'';return `<div class="cc">${it}<div class="cn">${esc(clean(r.n))}</div>${meta?`<div class="cmeta">${meta}</div>`:''}${chips(r.s)}</div>`;}).join('')||'<div class="empty">找不到符合的卡片</div>';}
-function cards(){return `<div class="sec-head"><div><h1 class="title">卡冊系統</h1><div class="subtitle">蒐集卡片，永久累積屬性與戰鬥能力</div></div></div><div class="grid">${gc('doll','','娃娃系統',DB.doll.length+' 張')}${gc('transform','','變身系統',DB.transform.length+' 張')}${gc('holy','','聖物系統',DB.holy.length+' 張')}</div>`;}
+ el('rows').innerHTML=show.map(r=>{const meta=(kind==='transform'&&r.t)?('變身時效 '+Math.round(r.t/60)+' 分'):'';const im=(window.CARDIMG&&window.CARDIMG[kind])?window.CARDIMG[kind][DB[kind].indexOf(r)]:'';const it=im?`<img src="assets/img/${im}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="this.style.display='none'">`:'';return `<div class="cc">${it}<div class="cn">${esc(clean(r.n))}</div>${meta?`<div class="cmeta">${meta}</div>`:''}${cardStats(kind,r)}</div>`;}).join('')||'<div class="empty">找不到符合的卡片</div>';}
+function cards(){return `<div class="sec-head"><div><h1 class="title">卡冊系統</h1><div class="subtitle">蒐集永久加能力；召喚／變身中另有一套，不是同一串數字</div></div></div><div class="grid">${gc('doll','','娃娃系統',DB.doll.length+' 張')}${gc('transform','','變身系統',DB.transform.length+' 張')}${gc('holy','','聖物系統',DB.holy.length+' 張')}</div>`;}
 
 /* 紋樣 */
 function patternView(){const names=[...new Set(DB.pattern.map(x=>x.n))];return `<div class="sec-head"><div><h1 class="title">紋樣系統</h1><div class="subtitle">共 ${names.length} 種紋樣 ‧ ${DB.pattern.length} 個等級設定</div></div></div><div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋紋樣名稱…" oninput="__f()"></div><span class="count" id="cnt"></span></div><div class="clist" id="rows" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>`;}
@@ -365,8 +368,8 @@ el('rows').innerHTML=show.map(x=>`<div class="cc" style="text-align:left"><div c
 window.dsetcat=function(c){window.__dcat=c;window.__dropPage=1;['all','server','boss','region','mob'].forEach(k=>{const bb=el('dc_'+k);if(bb)bb.classList.toggle('on',k===c);});if(c!=='region'&&el('rg'))el('rg').value='';window.__f();};
 window.__dropGo=function(p){window.__dropPage=p;window.__f();};
 
-function promoView(){return `<div class="sec-head"><div><h1 class="title">📣 推廣中心</h1><div class="subtitle">複製專屬文案去分享、貼文截圖回報，AI 核查通過每晚統一發獎！</div></div></div><iframe src="https://report.kingage.cc.cd/" allow="clipboard-write" style="width:100%;height:1500px;border:0;border-radius:12px;background:#12100c" title="推廣中心"></iframe><div style="text-align:center;margin-top:10px"><a href="https://report.kingage.cc.cd/" target="_blank" rel="noopener" style="color:var(--gold2,#e8c766);font-size:12px">若上方沒有顯示，點此開新視窗 →</a></div>`;}
-function inviteView(){return `<div class="sec-head"><div><h1 class="title">🎁 產生推薦碼</h1><div class="subtitle">先在這裡取得你的專屬推薦碼，再去「📣 推廣中心」複製文案分享！</div></div></div><iframe src="https://promo.kingage.cc.cd/" allow="clipboard-write" style="width:100%;height:1500px;border:0;border-radius:12px;background:#12100c" title="產生推薦碼"></iframe><div style="text-align:center;margin-top:10px"><a href="https://promo.kingage.cc.cd/" target="_blank" rel="noopener" style="color:var(--gold2,#e8c766);font-size:12px">若上方沒有顯示，點此開新視窗 →</a></div>`;}
+function promoView(){return `<div class="sec-head"><div><h1 class="title">📣 推廣中心</h1><div class="subtitle">複製專屬文案去分享、貼文截圖回報，AI 核查通過每晚統一發獎！</div></div></div><iframe class="embed-frame" src="https://report.kingage.cc.cd/report.html" allow="clipboard-write" title="推廣中心"></iframe><div style="text-align:center;margin-top:10px"><a href="https://report.kingage.cc.cd/report.html" target="_blank" rel="noopener" style="color:var(--gold2,#e8c766);font-size:12px">若上方沒有顯示，點此開新視窗 →</a></div>`;}
+function inviteView(){return `<div class="sec-head"><div><h1 class="title">🎁 產生推薦碼</h1><div class="subtitle">先在這裡取得你的專屬推薦碼，再去「📣 推廣中心」複製文案分享！</div></div></div><iframe class="embed-frame" src="https://promo.kingage.cc.cd/" allow="clipboard-write" title="產生推薦碼"></iframe><div style="text-align:center;margin-top:10px"><a href="https://promo.kingage.cc.cd/" target="_blank" rel="noopener" style="color:var(--gold2,#e8c766);font-size:12px">若上方沒有顯示，點此開新視窗 →</a></div>`;}
 let cur='home';
 /* ===== 升階裝備（武器 / 飾品 / 肩甲徽章）=====
    資料在 assets/upgrade.js（window.UPG），由 官網_職業裝備產生器\4_產生UPG.py 產生。
@@ -471,24 +474,24 @@ function rankView(){
     + `<div class="idc" style="margin-top:6px">※ 排行為靜態快照，非即時；GM 帳號不列入。</div>`;
 }
 const R={rank:rankView,home,settings,event:eventView,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
- doll:()=>cardView('doll','娃娃系統','召喚娃娃並蒐集卡片累積能力'),transform:()=>cardView('transform','變身系統','變身取得外觀與能力，含時效'),holy:()=>cardView('holy','聖物系統','聖物提供防禦與特殊素質'),
+ doll:()=>cardView('doll','娃娃系統','收集（永久）與召喚中是兩套數字'),transform:()=>cardView('transform','變身系統','收集（永久）與變身中是兩套數字，含時效'),holy:()=>cardView('holy','聖物系統','收集（永久）與召喚中是兩套數字'),
  pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
  star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};
 window.__f=function(){if(cur==='weapon')equipRender('weapon');else if(cur==='armor')equipRender('armor');else if(cur==='doll')cardRender('doll');else if(cur==='transform')cardRender('transform');else if(cur==='holy')cardRender('holy');else if(cur==='gallery')galleryRender();else if(cur==='drop')dropRender();else if(cur==='pattern')patternRender();else if(LISTKEYS.indexOf(cur)>=0)listRender(cur);};
 function go(s){if(!R[s])s='home';cur=s;if(s==='doll'||s==='transform'||s==='holy')cardTier='';app.innerHTML=R[s]();document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.s===s));
  if(s==='weapon')equipRender('weapon');if(s==='armor')equipRender('armor');if(s==='doll')cardRender('doll');if(s==='transform')cardRender('transform');if(s==='holy')cardRender('holy');if(s==='jobset')jobsetRender();if(s==='gallery')galleryRender();if(s==='drop')dropRender();if(s==='pattern')patternRender();if(LISTKEYS.indexOf(s)>=0)listRender(s);
- if(s==='home')initHeroFx();window.scrollTo(0,0);if(window.innerWidth<=900)closeNav();history.replaceState(null,'','#'+s);}
+ if(s==='home')initHeroFx();window.scrollTo(0,0);closeNav();history.replaceState(null,'','#'+s);}
 window.__go=go;
 window.__tier=function(kind,t){cardTier=t;app.innerHTML=R[kind]();cardRender(kind);};
 window.__art=function(kind,i){cur='article';let html='';
  if(kind==='news'){const n=(window.SITE_NEWS||NEWS_DEFAULT)[i]||['','','',''];html=`<div class="backbtn" onclick="__go('home')">← 返回首頁</div><div class="art"><div class="art-head"><div class="ann-badge2">${esc(n[1]||'')}</div><h1 class="title">${esc(n[2]||'')}</h1><div class="subtitle">${esc(n[0]||'')}</div></div><div class="art-body">${n[3]||'<p>（此公告尚未填寫內文，可在 assets/news.js 為該則加上第 4 欄內文）</p>'}</div></div>`;}
  else if(kind==='setting'){html=`<div class="backbtn" onclick="__go('settings')">← 返回遊戲設定</div>`+renderSetting(SETTINGS[i]);}
- app.innerHTML=html;document.querySelectorAll('#nav a').forEach(a=>a.classList.remove('on'));window.scrollTo(0,0);if(window.innerWidth<=900)closeNav();};
-document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a[data-s]');if(a)go(a.dataset.s);});
+ app.innerHTML=html;document.querySelectorAll('#nav a').forEach(a=>a.classList.remove('on'));window.scrollTo(0,0);closeNav();};
+document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a[data-s]');if(a)go(a.dataset.s);else if(e.target.closest('a'))closeNav();});
 document.querySelector('.nav-brand').addEventListener('click',()=>go('home'));
 app.addEventListener('click',e=>{const c=e.target.closest('[data-go]');if(c)go(c.dataset.go);});
-window.toggleNav=function(){el('nav').classList.toggle('open');};
-function closeNav(){el('nav').classList.remove('open');}
+window.toggleNav=function(){const n=el('nav');const on=n.classList.toggle('open');n.classList.toggle('active',on);document.body.classList.toggle('nav-open',on);document.body.style.overflow=on?'hidden':'';};
+function closeNav(){const n=el('nav');if(!n)return;n.classList.remove('open','active');document.body.classList.remove('nav-open');document.body.style.overflow='';}
 (function(){var d=document.getElementById('dl');if(d)d.href=(window.DOWNLOAD_URL||'#');})();
 go((location.hash||'#home').slice(1));
 })();

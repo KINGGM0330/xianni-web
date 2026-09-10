@@ -116,7 +116,6 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <a data-s="home" class="on"><span class="ic">🏠</span>首頁</a>
 <a data-s="invite"><span class="ic">🎁</span>產生推薦碼</a>
 <a data-s="promo"><span class="ic">📣</span>推廣中心</a>
-<a data-s="event"><span class="ic">🕯️</span>鬼月活動</a>
 <a data-s="settings"><span class="ic">⚙️</span>遊戲設定</a>
 <a data-s="more"><span class="ic">📚</span>其他系統</a>
 <a data-s="drop"><span class="ic">💧</span>掉落查詢</a>
@@ -473,7 +472,7 @@ function rankView(){
     + `</div><div class="tblwrap" id="rkbox">${rankRows()}</div>`
     + `<div class="idc" style="margin-top:6px">※ 排行為靜態快照，非即時；GM 帳號不列入。</div>`;
 }
-const R={rank:rankView,home,settings,event:eventView,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
+const R={rank:rankView,home,settings,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
  doll:()=>cardView('doll','娃娃系統','收集（永久）與召喚中是兩套數字'),transform:()=>cardView('transform','變身系統','收集（永久）與變身中是兩套數字，含時效'),holy:()=>cardView('holy','聖物系統','收集（永久）與召喚中是兩套數字'),
  pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
  star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};

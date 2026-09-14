@@ -144,7 +144,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <div class="fab" title="回頂部" onclick="scrollTo({top:0,behavior:'smooth'})">⚡</div>
 <script src="assets/news.js?v=f4610519"></script>
 <script src="assets/upgrade.js?v=ee1d055f"></script>
-<script src="assets/rank.js?v=7fccbacf"></script>
+<script src="assets/rank.js?v=8dbcb157"></script>
 <script src="assets/game-data.js?v=9da092c3"></script>
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
@@ -598,7 +598,7 @@ function upBadgeView(){
 
 /* ═══ 排行榜（靜態版；資料由 官網_職業裝備產生器\5_產生RANK.py 從正服 dump 產生）═══ */
 let rankTab='level';
-const RK_CAT=[['transform','變身'],['doll','娃娃'],['holy','聖物'],['achieve','成就'],['boss','BOSS']];
+const RK_CAT=[['transform','變身'],['doll','娃娃'],['holy','聖物'],['awaken','覺醒'],['achieve','成就'],['boss','BOSS']];
 function rkMedal(i){return i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);}
 function rkName(r){return `<span class="nm">${esc(r.n)}</span>`+(r.g?` <span class="idc">${esc(r.g)}</span>`:'');}
 function rkNum(v){return String(v).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
@@ -627,7 +627,7 @@ window.__rankGo=function(k){rankTab=k;const b=document.getElementById('rkbox');i
 function rankView(){
   const D=window.RANK;
   if(!D) return `<div class="sec-head"><div><h1 class="title">排行榜</h1><div class="subtitle">資料還沒產生</div></div></div>`;
-  const T=[['level','等級榜','轉生 → 等級 → 經驗'],['collect','收集榜','變身/娃娃/聖物/成就/BOSS'],['pattern','紋樣榜','紋樣積分']];
+  const T=[['level','等級榜','轉生 → 等級 → 經驗'],['collect','收集榜','變身/娃娃/聖物/覺醒/成就/BOSS'],['pattern','紋樣榜','紋樣積分']];
   return `<div class="sec-head"><div><h1 class="title">排行榜</h1><div class="subtitle">`
     + `統計 ${rkNum(D.total)} 位角色 ‧ 每榜取前 ${D.level.length} 名 ‧ 資料時間 ${esc(D.gen)}</div></div></div>`
     + `<div class="grid" id="rktabs" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">`

@@ -145,7 +145,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <script src="assets/news.js?v=f4610519"></script>
 <script src="assets/upgrade.js?v=ee1d055f"></script>
 <script src="assets/rank.js?v=8dbcb157"></script>
-<script src="assets/game-data.js?v=9da092c3"></script>
+<script src="assets/game-data.js?v=bfab6a9f"></script>
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
 const el=id=>document.getElementById(id);
@@ -167,17 +167,10 @@ try{DB.weapon.sort((a,b)=>a.id-b.id);DB.armor.sort((a,b)=>a.id-b.id);}catch(e){}
  (function loop(){x.clearRect(0,0,w,h);for(const p of ps){p.y-=p.s;p.x+=Math.sin(p.y*.01)*.15;if(p.y<-5){p.y=h+5;p.x=Math.random()*w;}x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba('+p.h+','+p.o+')';x.shadowBlur=8;x.shadowColor='rgba('+p.h+',.8)';x.fill();}requestAnimationFrame(loop);})();})();
 
 function chips(s){const keys=Object.keys(s||{});if(!keys.length)return '<span style="color:var(--mut);font-size:11px">—</span>';
- return '<div class="chips">'+keys.map(k=>{const v=s[k];const n=(typeof v==='number')?v:null;const cls=(n!==null&&n<0)?'neg':'pos';const shown=(n!==null)?((n>0?'+':'')+n):String(v);return '<span class="chip '+cls+'">'+esc(k)+'<b>'+shown+'</b></span>';}).join('')+'</div>';}
+ return '<div class="chips">'+keys.map(k=>{const v=s[k];if(v===false)return '';if(v===true)return '<span class="chip pos">'+esc(k)+'</span>';const n=(typeof v==='number')?v:null;const cls=(n!==null&&n<0)?'neg':'pos';const shown=(n!==null)?((n>0?'+':'')+n):String(v);return '<span class="chip '+cls+'">'+esc(k)+'<b>'+shown+'</b></span>';}).join('')+'</div>';}
 function chipBox(label,s,act){return '<div class="cgrp'+(act?' cgrp-act':'')+'"><div class="clbl">'+label+'</div>'+chips(s)+'</div>';}
 function cardStats(kind,r){const a=(kind==='transform')?'變身中':'召喚中';return chipBox('收集（永久）',r.s,false)+chipBox(a,r.p,true);}
 function pct(v){const n=Math.round((v||0)/10*10)/10;return (n%1?n.toFixed(1):n)+'%';}
-function awBox(r){const a=r.aw;if(!a)return '';
- const line=[`基礎 ${pct(a.r)}`];
- if(a.inc)line.push(`每失敗 +${pct(a.inc)}`);
- if(a.pity)line.push(`${a.pity} 次保底`);
- if(a.matn2)line.push(`材料 ${esc(a.matn2)}×${a.matn||1}`);
- else line.push('材料：同階重複卡');
- return `<div class="cgrp cgrp-aw"><div class="clbl">✦ ${esc(a.ti||'醒覺')}（${esc(a.t||'')}）追加</div>${chips(a.s)}<div class="awline">${line.join(' ‧ ')}</div></div>`;}
 function jobs(arr){if(!arr||!arr.length)return '<span style="color:var(--mut);font-size:11px">全職</span>';if(arr.length>=8)return '<span class="job">全職業</span>';return '<div class="jobs">'+arr.map(j=>'<span class="job">'+esc(j)+'</span>').join('')+'</div>';}
 
 let heroRAF=null;
@@ -246,8 +239,7 @@ function equipRender(kind){const q=(el('q').value||'').trim(),ty=el('ty').value,
  el('rows').innerHTML=show.map(r=>{const s=Object.assign({},r.s);if(!isW)delete s.AC;return `<tr><td><div style="display:flex;align-items:center;gap:8px">${ic(r.id)}<div><div class="nm">${esc(r.n)}</div><div class="idc">#${r.id}${r.se?' ‧ 安全值 '+r.se:''}</div></div></div></td><td style="color:var(--dim)">${esc(TYPE[r.ty]||r.ty||'—')}</td>${isW?'':acCell(r)}<td>${jobs(r.job)}</td><td>${chips(s)}</td></tr>`;}).join('')||'<tr><td colspan="5"><div class="empty">找不到符合的裝備</div></td></tr>';}
 
 /* 卡冊 */
-let cardTier='';let cardAwOnly=false;
-window.__awonly=function(kind){cardAwOnly=!cardAwOnly;app.innerHTML=R[kind]();cardRender(kind);};
+let cardTier='';
 const TIER_ORDER=['一般','高級','稀有','英雄','傳說','神話','唯一'];
 const TIER_COLOR={'一般':'#f2f2f2','高級':'#4ade80','稀有':'#60a5fa','英雄':'#f87171','傳說':'#c084fc','神話':'#e7c46a','唯一':'#22d3ee'};
 function tierCol(t){return TIER_COLOR[t]||'#b9b2d0';}
@@ -283,10 +275,8 @@ function awakenView(){
   kbar+=mk(k,AWKIND[k]+' '+n,awKind===k);
  }
  const base=awKind?arr.filter(x=>x.kind===awKind):arr;
- const tiers=[];
- for(const x of base){if(x.tier&&tiers.indexOf(x.tier)<0)tiers.push(x.tier);}
- const order=['神話','傳說','英雄','稀有','高級','中級','一般'];
- tiers.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+ const set=new Set(base.map(x=>x.tier).filter(Boolean));
+ const tiers=TIER_ORDER.filter(t=>set.has(t));
  let tbar=tierBtn('', '全部階級', awTier==='', "__awtier('')");
  for(const t of tiers){tbar+=tierBtn(t,t,awTier===t,"__awtier('"+t+"')");}
  return `<div class="sec-head"><div><h1 class="title">覺醒圖鑑</h1><div class="subtitle">獨立醒覺卡圖 ‧ 醒覺追加（收集）與醒覺變身／召喚屬性分列 ‧ 共 ${arr.length} 張</div></div></div>
@@ -338,7 +328,7 @@ function towerView(){const T=twSec(),c=T.cfg||{};
   ['死亡',c.die?'該場結束':'可復活續戰'],['斷線',c.off?'視為結束':'可重連'],
   c.frag?['碎片',c.frag+' ×'+c.fragN+' 換 1 顆'+(c.sure||'')]:null,
   c.sure?['必成道具',c.sure]:null,['塔內掉落',c.drop?'照 droplist 掉':'不掉']].filter(Boolean);
- const ORDER=['一般','高級','稀有','英雄','傳說','神話','唯一'];
+ const ORDER=TIER_ORDER;
  const tiers=ORDER.filter(t=>T.cards.some(x=>x.r===t));
  const mkR=(t,label)=>{const on=twTier===t;const col=RARC[t]||'var(--gold2,#d4af37)';return `<button onclick="__twtier('${t}')" style="padding:5px 13px;margin:0 6px 6px 0;border-radius:16px;border:1px solid ${col};background:${on?col:'transparent'};color:${on?'#1a1206':col};cursor:pointer;font-size:13px;font-weight:${on?'700':'400'}">${label}</button>`;};
  const mkS=(v,label)=>{const on=twStar===v;return `<button onclick="__twstar(${v})" style="padding:5px 13px;margin:0 6px 6px 0;border-radius:16px;border:1px solid var(--gold2,#d4af37);background:${on?'var(--gold2,#d4af37)':'transparent'};color:${on?'#1a1206':'var(--gold2,#d4af37)'};cursor:pointer;font-size:13px;font-weight:${on?'700':'400'}">${label}</button>`;};

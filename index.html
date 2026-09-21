@@ -144,8 +144,8 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <div class="fab" title="回頂部" onclick="scrollTo({top:0,behavior:'smooth'})">⚡</div>
 <script src="assets/news.js?v=f4610519"></script>
 <script src="assets/upgrade.js?v=ee1d055f"></script>
-<script src="assets/rank.js?v=8dbcb157"></script>
-<script src="assets/game-data.js?v=bfab6a9f"></script>
+<script src="assets/rank.js?v=dbcc3b74"></script>
+<script src="assets/game-data.js?v=5fb5da11"></script>
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
 const el=id=>document.getElementById(id);
@@ -348,7 +348,7 @@ function twStarRow(st){
  const bits=['成功 '+pct(st.r)];
  if(st.inc)bits.push('每失敗 +'+pct(st.inc));
  if(st.pity)bits.push(st.pity+' 次保底');
- if(st.sure)bits.push('帶 '+esc(st.sure)+' 必成');
+ if(st.sure&&st.r<1000)bits.push('帶 '+esc(st.sure)+' ×'+(st.sureN||1)+' 必成');
  if(st.keep)bits.push('失敗不扣材料');
  if(st.down)bits.push('失敗降星');
  return `<div class="tw-star"><div class="tw-sh">★${st.s}</div><div class="tw-sm">${mat?'材料 '+mat+' ‧ ':''}${bits.join(' ‧ ')}</div>${chips(st.b)}</div>`;}

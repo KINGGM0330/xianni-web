@@ -144,8 +144,8 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <div class="fab" title="回頂部" onclick="scrollTo({top:0,behavior:'smooth'})">⚡</div>
 <script src="assets/news.js?v=f4610519"></script>
 <script src="assets/upgrade.js?v=ee1d055f"></script>
-<script src="assets/rank.js?v=dbcc3b74"></script>
-<script src="assets/game-data.js?v=5fb5da11"></script>
+<script src="assets/rank.js?v=2d3dd777"></script>
+<script src="assets/game-data.js?v=9368c232"></script>
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
 const el=id=>document.getElementById(id);
@@ -252,12 +252,49 @@ function tierBar(kind){
  const mk=(t,label)=>tierBtn(t,label,cardTier===t,"__tier('"+kind+"','"+t+"')");
  return `<div class="tierbar" style="margin:12px 0 2px">${mk('','全部')}${tiers.map(t=>{const c=DB[kind].filter(x=>x.tier===t).length;return mk(t,t+' '+c);}).join('')}</div>`;
 }
-function cardView(kind,title,desc){
+function cardViewBase(kind,title,desc){
  return `<div class="sec-head"><div><h1 class="title">${title}</h1><div class="subtitle">${desc} ‧ 共 ${DB[kind].length} 張</div></div></div>${tierBar(kind)}<div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋卡片名稱…" oninput="__f()"></div><span class="count" id="cnt"></span></div><div class="clist" id="rows"></div>`;}
-function cardRender(kind){const q=(el('q').value||'').trim();const CAP=300;let arr=DB[kind];if(cardTier)arr=arr.filter(x=>x.tier===cardTier);if(q)arr=arr.filter(x=>hit(clean(x.n),q));const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total} 張`+(total>CAP?`（顯示前 ${CAP}）`:'');
+function cardRenderBase(kind){const q=(el('q').value||'').trim();const CAP=300;let arr=DB[kind];if(cardTier)arr=arr.filter(x=>x.tier===cardTier);if(q)arr=arr.filter(x=>hit(clean(x.n),q));const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total} 張`+(total>CAP?`（顯示前 ${CAP}）`:'');
  el('rows').innerHTML=show.map(r=>{const meta=(kind==='transform'&&r.t)?('變身時效 '+Math.round(r.t/60)+' 分'):'';const im=(window.CARDIMG&&window.CARDIMG[kind])?window.CARDIMG[kind][DB[kind].indexOf(r)]:'';const it=im?`<img src="assets/img/${im}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="this.style.display='none'">`:'';return `<div class="cc">${it}<div class="cn">${esc(clean(r.n))}${tierBadge(r.tier)}</div>${meta?`<div class="cmeta">${meta}</div>`:''}${cardStats(kind,r)}</div>`;}).join('')||'<div class="empty">找不到符合的卡片</div>';}
 function cards(){const nAw=(DB.awaken||[]).length;return `<div class="sec-head"><div><h1 class="title">卡冊系統</h1><div class="subtitle">蒐集永久加能力；召喚／變身中另有一套，不是同一串數字；覺醒為獨立圖鑑</div></div></div><div class="grid">${gc('doll','','娃娃系統',DB.doll.length+' 張')}${gc('transform','','變身系統',DB.transform.length+' 張')}${gc('holy','','聖物系統',DB.holy.length+' 張')}${gc('awaken','','覺醒圖鑑',nAw+' 張')}</div>`;}
 
+
+/* 能力組套（併進 娃娃／變身／聖物 分頁：集齊指定卡片，追加組套能力） */
+let cardTab='card', csStat='';
+const CSLBL={doll:'娃娃',transform:'變身',holy:'聖物'};
+function csList(kind){return ((window.DB&&DB.cardsets)||{})[kind]||[];}
+function tabBar(kind){
+ const n=csList(kind).length;if(!n)return '';
+ const b=(v,label)=>{const on=cardTab===v;return `<button onclick="__ctab('${kind}','${v}')" style="padding:7px 20px;margin:0 8px 6px 0;border-radius:8px 8px 0 0;border:1px solid var(--gold2,#d4af37);border-bottom:${on?'3px solid var(--gold2,#d4af37)':'1px solid var(--line)'};background:${on?'rgba(212,175,55,.16)':'transparent'};color:${on?'var(--gold2,#d4af37)':'var(--dim,#b9b2d0)'};cursor:pointer;font-size:14px;font-weight:${on?'800':'500'}">${label}</button>`;};
+ return `<div style="margin:12px 0 4px;border-bottom:1px solid var(--line)">${b('card','卡片 '+DB[kind].length)}${b('set','能力組套 '+n)}</div>`;
+}
+window.__ctab=function(kind,t){cardTab=t;cardTier='';csStat='';app.innerHTML=R[kind]();cardRender(kind);};
+window.__csstat=function(v){csStat=v;window.__f();};
+function cardView(kind,title,desc){
+ if(cardTab!=='set'){return cardViewBase(kind,title,desc).replace('</div></div></div>','</div></div></div>'+tabBar(kind));}
+ const L=csList(kind);
+ const cnt={};L.forEach(x=>Object.keys(x.s||{}).forEach(k=>cnt[k]=(cnt[k]||0)+1));
+ const opts=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).map(k=>`<option value="${esc(k)}"${csStat===k?' selected':''}>${esc(k)}（${cnt[k]} 組）</option>`).join('');
+ return `<div class="sec-head"><div><h1 class="title">${title}</h1><div class="subtitle">集齊指定${CSLBL[kind]}卡即永久追加組套能力 ‧ 與單卡收集能力疊加 ‧ 共 ${L.length} 組</div></div></div>${tabBar(kind)}
+ <div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋組套或卡片名稱…" oninput="__f()"></div><select onchange="__csstat(this.value)" style="padding:8px 10px;border-radius:8px;background:var(--panel);color:var(--text,#eee);border:1px solid var(--line);margin-left:8px"><option value="">全部能力</option>${opts}</select><span class="count" id="cnt"></span></div><div class="clist cslist" id="rows"></div>`;
+}
+function csThumb(kind,i,nm){
+ const d=(i>=0)?DB[kind][i]:null;const c=tierCol(d&&d.tier);
+ const im=(i>=0&&window.CARDIMG&&window.CARDIMG[kind])?window.CARDIMG[kind][i]:'';
+ const pic=im?`<img src="assets/img/${im}" loading="lazy" style="width:100%;aspect-ratio:3/4;object-fit:contain;display:block;border-radius:4px" onerror="this.style.display='none'">`:'';
+ return `<div title="${esc(clean(nm))}" style="width:64px;text-align:center;border:1px solid ${c};border-radius:6px;padding:3px 2px 4px;background:rgba(0,0,0,.25)">${pic}<div style="font-size:10.5px;line-height:1.25;color:${c};margin-top:2px;word-break:break-all">${esc(clean(nm))}</div></div>`;
+}
+function csRender(kind){
+ const q=(el('q').value||'').trim();const CAP=200;
+ let arr=csList(kind);
+ if(csStat)arr=arr.filter(x=>x.s&&x.s[csStat]);
+ if(q)arr=arr.filter(x=>hit(clean(x.n),q)||x.c.some(c=>hit(clean(c),q)));
+ const total=arr.length,show=arr.slice(0,CAP);
+ el('cnt').textContent=`符合 ${total} 組`+(total>CAP?`（顯示前 ${CAP}）`:'');
+ el('rows').innerHTML=show.map(r=>{const nm=clean(r.n).replace(/^[★☆]?\s*\[?|\]?\s*[★☆]?$/g,'');
+  return `<div class="cc" style="grid-column:span 1"><div class="cn">${esc(nm)} <span class="cmeta" style="display:inline;margin-left:6px">${r.c.length} 張</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px">${r.c.map((c,j)=>csThumb(kind,(r.ci||[])[j]==null?-1:r.ci[j],c)).join('')}</div>${chipBox('組套能力（永久）',r.s,true)}</div>`;}).join('')||'<div class="empty">找不到符合的組套</div>';
+}
+function cardRender(kind){if(cardTab==='set')csRender(kind);else cardRenderBase(kind);}
 
 /* 覺醒圖鑑（獨立頁：新醒覺圖 + 加成／變身屬性） */
 let awKind='', awTier='';
@@ -631,7 +668,7 @@ const R={rank:rankView,home,settings,upgrade:upgradeHub,jobset:jobsetView,upweap
  pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
  tower:towerView, star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};
 window.__f=function(){if(cur==='weapon')equipRender('weapon');else if(cur==='armor')equipRender('armor');else if(cur==='doll')cardRender('doll');else if(cur==='transform')cardRender('transform');else if(cur==='holy')cardRender('holy');else if(cur==='awaken')awakenRender();else if(cur==='gallery')galleryRender();else if(cur==='drop')dropRender();else if(cur==='tower')towerRender();else if(cur==='pattern')patternRender();else if(LISTKEYS.indexOf(cur)>=0)listRender(cur);};
-function go(s){if(!R[s])s='home';cur=s;if(s==='doll'||s==='transform'||s==='holy'){cardTier='';}if(s==='awaken'){awKind='';awTier='';}if(s==='tower'){twStar=0;twTier='';}if(LISTKEYS.indexOf(s)>=0){listCat='';}if(s==='rebirth'){rebJob='';}app.innerHTML=R[s]();document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.s===s));
+function go(s){if(!R[s])s='home';cur=s;if(s==='doll'||s==='transform'||s==='holy'){cardTier='';cardTab='card';csStat='';}if(s==='awaken'){awKind='';awTier='';}if(s==='tower'){twStar=0;twTier='';}if(LISTKEYS.indexOf(s)>=0){listCat='';}if(s==='rebirth'){rebJob='';}app.innerHTML=R[s]();document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.s===s));
  if(s==='weapon')equipRender('weapon');if(s==='armor')equipRender('armor');if(s==='doll')cardRender('doll');if(s==='transform')cardRender('transform');if(s==='holy')cardRender('holy');if(s==='awaken')awakenRender();if(s==='jobset')jobsetRender();if(s==='gallery')galleryRender();if(s==='drop')dropRender();if(s==='tower')towerRender();if(s==='rebirth')rebirthRender();if(s==='pattern')patternRender();if(LISTKEYS.indexOf(s)>=0)listRender(s);
  if(s==='home')initHeroFx();window.scrollTo(0,0);closeNav();history.replaceState(null,'','#'+s);}
 window.__go=go;

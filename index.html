@@ -137,6 +137,8 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <a data-s="tower"><span class="ic">🗼</span>古神道場</a>
 <a data-s="drop"><span class="ic">💧</span>掉落查詢</a>
 <a data-s="upgrade"><span class="ic">🛡️</span>升階裝備</a>
+<a data-s="trial"><span class="ic">⚔️</span>仙逆試煉</a>
+<a data-s="mcard"><span class="ic">🌙</span>月卡系統</a>
 <a data-s="rank"><span class="ic">🏆</span>排行榜</a>
 <a id="dl" href="#" target="_blank" rel="noopener"><span class="ic">⬇️</span>遊戲下載</a>
 </nav></div></header>
@@ -145,6 +147,8 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <script src="assets/news.js?v=9924f4a5"></script>
 <script src="assets/upgrade.js?v=ee1d055f"></script>
 <script src="assets/rank.js?v=6945db83"></script>
+<script src="assets/trial.js"></script>
+<script src="assets/mcard.js"></script>
 <script src="assets/game-data.js?v=9368c232"></script>
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
@@ -662,14 +666,91 @@ function rankView(){
     + `</div><div class="tblwrap" id="rkbox">${rankRows()}</div>`
     + `<div class="idc" style="margin-top:6px">※ 排行為靜態快照，非即時；GM 帳號不列入。</div>`;
 }
-const R={rank:rankView,home,settings,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
+
+/* ===== 仙逆試煉 / 月卡系統（資料：assets/trial.js、assets/mcard.js，由 官網_職業裝備產生器\9_產生試煉與月卡.py 產生） ===== */
+let trTier=0,trSet=0;
+const TRC=['#9fb3c8','#4ade80','#60a5fa','#c084fc','#f59e0b'];
+function trChip(k,v){if(k==='AC'){return `<span class="chip pos">防禦<b>+${-v}</b></span>`;}const pct=/%$/.test(k);const sign=v>0?'+':'';return `<span class="chip ${v>0?'pos':'neg'}">${esc(k)}<b>${sign}${v}</b></span>`;}
+function trChips(o){return '<div class="chips">'+Object.keys(o).map(k=>trChip(k,o[k])).join('')+'</div>';}
+function trRate(ch){return ch>=3000?'常見':(ch>=100?'稀有':'極稀有');}
+function trialView(){
+ const T=window.TRIAL;
+ if(!T||!T.realms) return `<div class="sec-head"><div><h1 class="title">仙逆試煉</h1><div class="subtitle">資料還沒產生</div></div></div>`;
+ const bk=T.books.map(b=>`<div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>${esc(b.k)}升階</th><th>所需升階書</th><th>數量</th><th>成功率</th></tr></thead><tbody>${b.rows.map((r,i)=>`<tr><td class="nm" style="color:${TRC[i]}">升到【${esc(r.t)}】</td><td>${ic(r.id)} 【${esc(r.t)}】${esc(b.k)}升階書</td><td>× ${r.need}</td><td>${r.rate}%</td></tr>`).join('')}</tbody></table></div>`).join('');
+ return `<div class="sec-head"><div><h1 class="title">仙逆試煉</h1><div class="subtitle">5 個境界 ‧ 打碎片換升階書 ‧ 套裝／武器／飾品逐階升級 ‧ 數值取自本服資料庫</div></div><span class="count">${T.realms.length} 境界</span></div>
+ <div class="set-sec" style="max-width:none"><div class="set-sec-t">玩法流程</div>
+  <div class="set-row"><span class="set-l">① 進入</span><span class="set-v" style="white-space:normal;text-align:right">使用對應境界的「試煉傳送卷」進入仙逆試煉地圖，擊殺幻象怪</span></div>
+  <div class="set-row"><span class="set-l">② 收集</span><span class="set-v" style="white-space:normal;text-align:right">怪物掉落【套裝／武器／飾品】升階書碎片，以及稀有秘笈、擴洞槌、受祝福卷軸</span></div>
+  <div class="set-row"><span class="set-l">③ 合成</span><span class="set-v" style="white-space:normal;text-align:right">拿 ${T.frag?T.frag.need:100} 個同境界碎片，找「材料製作」NPC 換 1 本同境界升階書</span></div>
+  <div class="set-row"><span class="set-l">④ 升階</span><span class="set-v" style="white-space:normal;text-align:right">用升階書把裝備由 凡塵→靈息→聚靈→築基→真丹 逐階提升，階數越高需要的書越多、成功率越低</span></div></div>
+ <div class="blocktitle">升階書需求與成功率</div>${bk}
+ <div class="blocktitle">境界地圖</div><div id="trbar" style="margin:4px 0 14px"></div><div id="trbody"></div>`;
+}
+function trialRender(){
+ const T=window.TRIAL;if(!T||!T.realms)return;
+ const bar=el('trbar'),body=el('trbody');if(!bar||!body)return;
+ bar.innerHTML=T.realms.map((r,i)=>{const on=i===trTier,C=TRC[i];return `<button onclick="__trial(${i})" style="padding:6px 15px;margin:0 7px 7px 0;border-radius:16px;cursor:pointer;font-size:13px;border:1px solid ${C};background:${on?C:'transparent'};color:${on?'#12101c':C};font-weight:${on?'800':'500'}">${esc(r.n)}境</button>`;}).join('');
+ const r=T.realms[trTier],C=TRC[trTier];
+ const mobs=`<div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>怪物</th><th>等級</th><th>HP</th><th>經驗</th><th>數量</th></tr></thead><tbody>${r.mobs.map(m=>`<tr><td class="nm" style="color:${C}">${esc(m.n)}</td><td>${m.lv}</td><td>${m.hp}</td><td>${m.exp}</td><td>${m.cnt||'—'}</td></tr>`).join('')}</tbody></table></div>`;
+ const CL={rare:'珍貴',secret:'秘笈',hammer:'擴洞槌',frag:'升階書碎片',scroll:'卷軸',other:'其他'};
+ const drops=`<div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>掉落物</th><th>類別</th><th>稀有度</th></tr></thead><tbody>${r.drops.map(d=>`<tr><td class="nm">${ic(d.id)} ${esc(d.n)}</td><td>${CL[d.c]||''}</td><td>${trRate(d.ch)}</td></tr>`).join('')}</tbody></table></div><div class="idc" style="margin:-6px 0 4px">※ 稀有度為大略分級，實際機率以遊戲內為準。${r.gold?' 另掉金幣 '+r.gold[0]+'～'+r.gold[1]+'。':''}</div>`;
+ const head=`<div class="set-sec" style="border-color:${C}55"><div class="set-sec-t" style="color:${C};background:linear-gradient(90deg,${C}22,transparent)">【${esc(r.n)}境】${esc(r.mn)}</div>
+  <div class="set-row"><span class="set-l">入場道具</span><span class="set-v">${esc(r.scroll)}</span></div>
+  <div class="set-row"><span class="set-l">怪物</span><span class="set-v">${r.mobs.length} 種 ‧ Lv ${r.mobs.length?r.mobs[0].lv:''}</span></div></div>`;
+ // 裝備
+ const sets=T.gear[trTier];if(trSet>=sets.length)trSet=0;
+ const sbar=sets.map((s,i)=>{const on=i===trSet;return `<button onclick="__trSet(${i})" style="padding:5px 13px;margin:0 6px 6px 0;border-radius:14px;cursor:pointer;font-size:12px;border:1px solid ${s.col};background:${on?s.col:'transparent'};color:${on?'#12101c':s.col};font-weight:${on?'800':'500'}">${esc(s.n)}（${esc(s.c)}）</button>`;}).join('');
+ const s=sets[trSet],SC=s.col;
+ const cards=s.items.map(it=>`<div class="cc" style="border-color:${SC}44"><div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">${ic(it.id)}<div><div class="cn" style="color:${SC}">${esc(it.n)}</div><div class="cmeta">${esc(it.p)}</div></div></div>${trChips(it.s)}</div>`).join('');
+ const keys=[];s.bn.forEach(b=>Object.keys(b.s).forEach(k=>{if(keys.indexOf(k)<0)keys.push(k);}));
+ const fv=(k,v)=>v===undefined?'<span class="idc">—</span>':(k==='AC'?'防+'+(-v):(v>0?'+':'')+v);
+ const bonus=`<div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>穿著件數</th>${keys.map(k=>`<th>${esc(k==='AC'?'防禦':k)}</th>`).join('')}</tr></thead><tbody>${s.bn.map(b=>`<tr><td class="nm" style="color:${SC}">${b.p} 件</td>${keys.map(k=>`<td>${fv(k,b.s[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="idc" style="margin:-6px 0 4px">※ 套裝加成為「查表制」：穿滿 N 件套用該列的總加成，不是逐件累加。</div>`;
+ const wp=T.weapons[trTier].map(w=>`<div class="cc" style="border-color:${C}44"><div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">${ic(w.id)}<div><div class="cn" style="color:${C}">${esc(w.n)}</div><div class="cmeta">攻擊 ${esc(w.d)}</div></div></div>${trChips(w.s)}</div>`).join('');
+ const ac=T.acc[trTier].map(a=>`<div class="cc" style="border-color:${C}44"><div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">${ic(a.id)}<div><div class="cn" style="color:${C}">${esc(a.n)}</div><div class="cmeta">${esc(a.p)}</div></div></div>${trChips(a.s)}</div>`).join('');
+ body.innerHTML=head
+  +`<div class="blocktitle">怪物</div>${mobs}<div class="blocktitle">掉落</div>${drops}`
+  +`<div class="blocktitle">【${esc(r.n)}】職業套裝（8 件）</div><div style="margin:4px 0 12px">${sbar}</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${cards}</div>
+    <div class="blocktitle" style="font-size:15px">套裝加成</div>${bonus}
+    <div class="blocktitle" style="font-size:15px">全套總計（8 件＋滿套加成）</div><div class="cc" style="border-color:${SC};max-width:none">${trChips(s.tot)}</div>`
+  +`<div class="blocktitle">【${esc(r.n)}】武器（各職業 1 把）</div><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${wp}</div>`
+  +`<div class="blocktitle">【${esc(r.n)}】飾品</div><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${ac}</div>`;
+}
+window.__trial=function(i){trTier=i;trialRender();};
+window.__trSet=function(i){trSet=i;trialRender();};
+
+function mcardView(){
+ const M=window.MCARD;
+ if(!M||!M.levels) return `<div class="sec-head"><div><h1 class="title">月卡系統</h1><div class="subtitle">資料還沒產生</div></div></div>`;
+ const sh=M.shop||{};
+ const lv=M.levels;
+ const col=(k)=>lv.some(r=>r[k]);
+ const COLS=[['exp','經驗加成','%'],['hp','HP',''],['mp','MP',''],['sp','魔攻',''],['dmg','近戰傷害',''],['bow','遠攻傷害',''],['hit','近戰命中',''],['bhit','遠攻命中',''],['red','物理減傷',''],['pot','藥水回復','%'],['ac','防禦','ac'],['mr','魔防',''],['pvp','PVP傷害',''],['mcrit','魔法暴擊','%'],['crit','一般暴擊','%'],['mred','魔法減傷',''],['mdmg','魔法增傷','']].filter(c=>col(c[0]));
+ const f=(r,c)=>{let v=r[c[0]];if(c[2]==='ac')v=-v;return (v>0&&c[2]!=='ac'?'+':(c[2]==='ac'?'+':''))+v+(c[2]==='%'?'%':'');};
+ const tbl=`<div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>等級</th><th>升級所需經驗</th><th>累計經驗</th>${COLS.map(c=>`<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${lv.map(r=>`<tr><td class="nm" style="color:var(--gold2)">Lv ${r.lv}</td><td>${r.need}</td><td>${r.total}</td>${COLS.map(c=>`<td>${f(r,c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ const pt=`<div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>藥水</th><th>回復量</th><th>每次消耗金幣</th><th>升到此級需要</th><th>成功率</th></tr></thead><tbody>${M.pots.map(p=>{const u=M.up.find(x=>x.to===p.lv);return `<tr><td class="nm">${ic(p.id)} ${esc(p.n)}</td><td>${p.min}～${p.max}</td><td>${p.gold}</td><td>${u?u.need+' 瓶 古白藥水(永恆)（Lv0）':'—'}</td><td>${u?u.rate+'%':'—'}</td></tr>`;}).join('')}</tbody></table></div>`;
+ return `<div class="sec-head"><div><h1 class="title">月卡系統</h1><div class="subtitle">花贊助幣買月卡 ‧ 30 天加成 ‧ 花費越多等級越高 ‧ 每次送古白藥水（永恆）</div></div></div>
+ <div class="set-sec" style="max-width:none"><div class="set-sec-t">月卡一覽</div>
+  <div class="set-row"><span class="set-l">購買</span><span class="set-v" style="white-space:normal;text-align:right">道具商城用 <b>${sh.price||''}</b> 個「滿累充贊助幣」購買【${esc(M.card)}】</span></div>
+  <div class="set-row"><span class="set-l">開通</span><span class="set-v" style="white-space:normal;text-align:right">點兩下使用＝開通／續費 ${M.days} 天（續費時間累加）</span></div>
+  <div class="set-row"><span class="set-l">贈品</span><span class="set-v" style="white-space:normal;text-align:right">每次開通送 ${M.giftn} 瓶「古白藥水(永恆)」</span></div>
+  <div class="set-row"><span class="set-l">月卡經驗</span><span class="set-v" style="white-space:normal;text-align:right">道具商城每花 1 個贊助幣＝${M.ratio} 點月卡經驗（含購買月卡本身），經驗永久累計</span></div>
+  <div class="set-row"><span class="set-l">效果</span><span class="set-v" style="white-space:normal;text-align:right">月卡有效期間才生效；到期後保留等級與經驗，續費即恢復</span></div>
+  <div class="set-row"><span class="set-l">查詢／升級</span><span class="set-v" style="white-space:normal;text-align:right">找「充月卡專員」NPC：看等級、經驗進度、剩餘天數，並可升級古白藥水</span></div></div>
+ <div class="blocktitle">月卡等級與加成（Lv 1～${lv.length}）</div>${tbl}
+ <div class="idc" style="margin:-6px 0 4px">※ 防禦 +N 代表 AC 降低 N 點（越高越好）。各等級加成為「該等級直接提供」的總值，不是逐級累加。</div>
+ <div class="blocktitle">古白藥水（永恆）</div>
+ <div class="note" style="margin-bottom:12px">Lv0 的古白藥水可直接喝，也是升級材料；Lv1～${M.pots.length-1} 同樣可喝，回復量隨等級提高、金幣消耗也隨等級增加。升級請找「充月卡專員」，系統會升背包內最高等級的那一瓶。藥水不在商城販售，只能靠月卡每次贈送取得。</div>${pt}`;
+}
+
+const R={trial:trialView,mcard:mcardView,rank:rankView,home,settings,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
  doll:()=>cardView('doll','娃娃系統','收集（永久）與召喚中是兩套數字'),transform:()=>cardView('transform','變身系統','收集（永久）與變身中是兩套數字，含時效'),holy:()=>cardView('holy','聖物系統','收集（永久）與召喚中是兩套數字'),
  awaken:awakenView,
  pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
  tower:towerView, star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};
 window.__f=function(){if(cur==='weapon')equipRender('weapon');else if(cur==='armor')equipRender('armor');else if(cur==='doll')cardRender('doll');else if(cur==='transform')cardRender('transform');else if(cur==='holy')cardRender('holy');else if(cur==='awaken')awakenRender();else if(cur==='gallery')galleryRender();else if(cur==='drop')dropRender();else if(cur==='tower')towerRender();else if(cur==='pattern')patternRender();else if(LISTKEYS.indexOf(cur)>=0)listRender(cur);};
 function go(s){if(!R[s])s='home';cur=s;if(s==='doll'||s==='transform'||s==='holy'){cardTier='';cardTab='card';csStat='';}if(s==='awaken'){awKind='';awTier='';}if(s==='tower'){twStar=0;twTier='';}if(LISTKEYS.indexOf(s)>=0){listCat='';}if(s==='rebirth'){rebJob='';}app.innerHTML=R[s]();document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.s===s));
- if(s==='weapon')equipRender('weapon');if(s==='armor')equipRender('armor');if(s==='doll')cardRender('doll');if(s==='transform')cardRender('transform');if(s==='holy')cardRender('holy');if(s==='awaken')awakenRender();if(s==='jobset')jobsetRender();if(s==='gallery')galleryRender();if(s==='drop')dropRender();if(s==='tower')towerRender();if(s==='rebirth')rebirthRender();if(s==='pattern')patternRender();if(LISTKEYS.indexOf(s)>=0)listRender(s);
+ if(s==='weapon')equipRender('weapon');if(s==='armor')equipRender('armor');if(s==='doll')cardRender('doll');if(s==='transform')cardRender('transform');if(s==='holy')cardRender('holy');if(s==='awaken')awakenRender();if(s==='jobset')jobsetRender();if(s==='trial'){trTier=0;trSet=0;trialRender();}if(s==='gallery')galleryRender();if(s==='drop')dropRender();if(s==='tower')towerRender();if(s==='rebirth')rebirthRender();if(s==='pattern')patternRender();if(LISTKEYS.indexOf(s)>=0)listRender(s);
  if(s==='home')initHeroFx();window.scrollTo(0,0);closeNav();history.replaceState(null,'','#'+s);}
 window.__go=go;
 window.__tier=function(kind,t){cardTier=t;app.innerHTML=R[kind]();cardRender(kind);};

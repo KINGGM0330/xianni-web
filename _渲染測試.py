@@ -6,7 +6,7 @@
   它的 harness 沒載入那些檔，所以原檔跑它也會噴同一個 TypeError。）
 """
 import re, sys, json, subprocess, os
-A = '/mnt/user-data/uploads/KINGGM/仙逆天堂官網/assets'
+A = os.path.join(os.path.dirname(os.path.abspath(__file__)),'assets')
 html = open(sys.argv[1], encoding='utf-8').read()
 navs = re.findall(r'<a data-s="([^"]+)"', html)
 scripts = re.findall(r'<script[^>]*>(.*?)</script>', html, re.S)
@@ -41,7 +41,7 @@ global.Image=function(){return _mk()};
 global.getComputedStyle=()=>({getPropertyValue:()=>''});
 '''
 data = ''.join(open(os.path.join(A,f), encoding='utf-8').read()+'\n;\n'
-               for f in ['game-data.js','news.js','rank.js','upgrade.js'])
+               for f in ['game-data.js','news.js','rank.js','upgrade.js','trial.js','mcard.js'])
 js = shim + '\n' + data + '\n' + '\n;\n'.join(inline) + f'''
 const NAV = {navs};
 let bad=[], empty=[], fell=[];

@@ -1,5 +1,7 @@
 <!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" as="image" href="assets/hero_bg.webp" fetchpriority="high">
+<link rel="preload" as="image" href="assets/logo_anim_s.webp">
 <title>仙逆天堂 ‧ 官方網站</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -9,7 +11,7 @@ body{font-family:-apple-system,'Microsoft JhengHei','PingFang TC',sans-serif;col
 a{color:inherit;text-decoration:none}
 ::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--gdim),var(--pur2));border-radius:9px}::-webkit-scrollbar-track{background:#0a0812}
 #fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-.bgveil{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% -8%,rgba(124,77,255,.16),transparent 55%),radial-gradient(ellipse at 92% 108%,rgba(192,96,255,.10),transparent 55%),linear-gradient(rgba(8,6,14,.82),rgba(8,6,14,.90)),url(assets/hero_bg.png) center center / cover no-repeat fixed,#07060d}
+.bgveil{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% -8%,rgba(124,77,255,.16),transparent 55%),radial-gradient(ellipse at 92% 108%,rgba(192,96,255,.10),transparent 55%),linear-gradient(rgba(8,6,14,.82),rgba(8,6,14,.90)),url(assets/hero_bg.webp) center center / cover no-repeat fixed,#07060d}
 .nav{position:sticky;top:0;z-index:80;background:linear-gradient(180deg,rgba(10,8,18,.94),rgba(10,8,18,.72));border-bottom:1px solid var(--line)}.nav::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .nav::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--pur),transparent);opacity:.8}
 .nav-inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:10px 20px}
@@ -39,8 +41,8 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 .hero-logo-wrap{position:absolute;top:43%;left:50%;width:min(600px,40%);z-index:4;pointer-events:none;transform:translate(-50%,-50%);animation:logoIn 1.2s ease .3s both,logoFloat 5.6s ease-in-out 1.7s infinite}
 @keyframes logoIn{from{opacity:0;transform:translate(-50%,-42%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes logoFloat{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-57%)}}
-.hero-logo-ov{display:block;width:100%;height:auto;animation:logoGlow 3.6s ease-in-out infinite}
-@keyframes logoGlow{0%,100%{filter:drop-shadow(0 0 18px rgba(150,110,255,.5))}50%{filter:drop-shadow(0 0 42px rgba(185,145,255,.95))}}
+.hero-logo-ov{display:block;width:100%;height:auto;filter:drop-shadow(0 0 28px rgba(165,125,255,.75))}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 @media(max-width:900px){.hero-logo-wrap{width:64%;top:42%}}
 .ann{background:var(--panel);border:1px solid var(--line);border-radius:var(--rad);overflow:hidden}
 .ann-row{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);transition:.15s}
@@ -126,7 +128,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 .tw-need{font-size:11px;color:var(--dim,#b9b2d0);line-height:1.8;margin-bottom:5px}
 </style>
 <header class="nav"><div class="nav-inner">
-<a class="nav-brand" data-s="home"><img src="assets/logo.png" alt="" onerror="this.style.display='none'">仙逆天堂</a>
+<a class="nav-brand" data-s="home"><img src="assets/logo_nav.webp" width="60" height="30" alt="" onerror="this.style.display='none'">仙逆天堂</a>
 <button class="burger" onclick="toggleNav()">☰</button>
 <nav class="nav-links" id="nav">
 <a data-s="home" class="on"><span class="ic">🏠</span>首頁</a>
@@ -157,6 +159,7 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
 const el=id=>document.getElementById(id);
+const imw=f=>String(f).replace(/\.png$/i,'.webp');
 const ic=id=>{const g=window.ICON&&window.ICON[id];return g?`<img src="assets/icons/${g}.png" loading="lazy" style="width:34px;height:34px;object-fit:contain;image-rendering:pixelated;flex:none" onerror="this.style.display='none'">`:'';};
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 /* 搜尋正規化：全形→半形、去空白、轉小寫。
@@ -169,10 +172,15 @@ const TYPE={singlebow:'單手弓',sword:'劍',claw:'爪',chainsword:'鎖鏈劍',
 try{DB.weapon.sort((a,b)=>a.id-b.id);DB.armor.sort((a,b)=>a.id-b.id);}catch(e){}
 
 /* 背景粒子 */
+/* 光點預先畫成小圖，每格用 drawImage 貼上，取代每顆都算 shadowBlur（canvas 最吃效能的設定） */
+const RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+const _glow={};function glowSprite(rgb){if(_glow[rgb])return _glow[rgb];const s=document.createElement('canvas');s.width=s.height=48;const g=s.getContext('2d'),gr=g.createRadialGradient(24,24,0,24,24,24);gr.addColorStop(0,'rgba('+rgb+',1)');gr.addColorStop(.14,'rgba('+rgb+',1)');gr.addColorStop(.3,'rgba('+rgb+',.45)');gr.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=gr;g.fillRect(0,0,48,48);return _glow[rgb]=s;}
 (function(){const c=el('fx'),x=c.getContext('2d');let w,h,ps;
- function rs(){w=c.width=innerWidth;h=c.height=innerHeight;}rs();addEventListener('resize',rs);
+ function rs(){w=c.width=innerWidth;h=c.height=innerHeight;if(RM&&ps)draw();}rs();addEventListener('resize',rs);
  ps=Array.from({length:70},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.8+.4,s:Math.random()*.4+.08,o:Math.random()*.5+.2,h:Math.random()<.5?'231,196,106':'165,130,255'}));
- (function loop(){x.clearRect(0,0,w,h);for(const p of ps){p.y-=p.s;p.x+=Math.sin(p.y*.01)*.15;if(p.y<-5){p.y=h+5;p.x=Math.random()*w;}x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba('+p.h+','+p.o+')';x.shadowBlur=8;x.shadowColor='rgba('+p.h+',.8)';x.fill();}requestAnimationFrame(loop);})();})();
+ function draw(){x.clearRect(0,0,w,h);for(const p of ps){const R=p.r*7;x.globalAlpha=p.o;x.drawImage(glowSprite(p.h),p.x-R,p.y-R,R*2,R*2);}x.globalAlpha=1;}
+ if(RM){draw();return;}
+ (function loop(){for(const p of ps){p.y-=p.s;p.x+=Math.sin(p.y*.01)*.15;if(p.y<-5){p.y=h+5;p.x=Math.random()*w;}}draw();requestAnimationFrame(loop);})();})();
 
 function chips(s){const keys=Object.keys(s||{});if(!keys.length)return '<span style="color:var(--mut);font-size:11px">—</span>';
  return '<div class="chips">'+keys.map(k=>{const v=s[k];if(v===false)return '';if(v===true)return '<span class="chip pos">'+esc(k)+'</span>';const n=(typeof v==='number')?v:null;const cls=(n!==null&&n<0)?'neg':'pos';const shown=(n!==null)?((n>0?'+':'')+n):String(v);return '<span class="chip '+cls+'">'+esc(k)+'<b>'+shown+'</b></span>';}).join('')+'</div>';}
@@ -187,18 +195,18 @@ function initHeroFx(){if(heroRAF)cancelAnimationFrame(heroRAF);const c=document.
  const COL=['231,196,106','150,200,255','185,150,255','120,240,220'];
  const motes=Array.from({length:48},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*2+.6,s:Math.random()*.5+.15,dr:Math.random()*.6-.3,ph:Math.random()*6.28,tw:Math.random()*.045+.012,c:COL[(Math.random()*COL.length)|0],o:Math.random()*.5+.3}));
  const pet=Array.from({length:16},()=>({x:Math.random()*w,y:Math.random()*h,vy:Math.random()*.5+.22,vx:Math.random()*.5-.25,rot:Math.random()*6.28,vr:(Math.random()*.02-.01),sz:Math.random()*7+5,o:Math.random()*.4+.22}));
- let t=0;function loop(){t++;x.clearRect(0,0,w,h);
-  for(const m of motes){m.y-=m.s;m.x+=Math.sin(t*.01+m.ph)*.3+m.dr;if(m.y<-6){m.y=h+6;m.x=Math.random()*w;}if(m.x<-10)m.x=w+10;if(m.x>w+10)m.x=-10;const a=m.o*(0.55+0.45*Math.sin(t*m.tw+m.ph));x.beginPath();x.arc(m.x,m.y,m.r,0,6.29);x.fillStyle='rgba('+m.c+','+a.toFixed(3)+')';x.shadowBlur=10;x.shadowColor='rgba('+m.c+',.9)';x.fill();}
-  x.shadowBlur=0;for(const p of pet){p.y+=p.vy;p.x+=p.vx+Math.sin(p.y*.02)*.3;p.rot+=p.vr;if(p.y>h+12){p.y=-12;p.x=Math.random()*w;}x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle='rgba(255,190,225,'+p.o+')';x.beginPath();x.ellipse(0,0,p.sz,p.sz*.48,0,0,6.29);x.fill();x.restore();}
-  heroRAF=requestAnimationFrame(loop);}loop();}
+ let t=0;function loop(){if(!c.isConnected){heroRAF=null;return;}t++;x.clearRect(0,0,w,h);
+  for(const m of motes){m.y-=m.s;m.x+=Math.sin(t*.01+m.ph)*.3+m.dr;if(m.y<-6){m.y=h+6;m.x=Math.random()*w;}if(m.x<-10)m.x=w+10;if(m.x>w+10)m.x=-10;const a=m.o*(0.55+0.45*Math.sin(t*m.tw+m.ph));const R=m.r*7;x.globalAlpha=a;x.drawImage(glowSprite(m.c),m.x-R,m.y-R,R*2,R*2);}
+  x.globalAlpha=1;for(const p of pet){p.y+=p.vy;p.x+=p.vx+Math.sin(p.y*.02)*.3;p.rot+=p.vr;if(p.y>h+12){p.y=-12;p.x=Math.random()*w;}x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle='rgba(255,190,225,'+p.o+')';x.beginPath();x.ellipse(0,0,p.sz,p.sz*.48,0,0,6.29);x.fill();x.restore();}
+  heroRAF=RM?null:requestAnimationFrame(loop);}loop();}
 
 const NEWS_DEFAULT=[["07/06","✦","◆ 開機公告 ◆","<p>歡迎來到仙逆天堂！</p>"]];
 const NEWS=(window.SITE_NEWS&&window.SITE_NEWS.length)?window.SITE_NEWS:NEWS_DEFAULT;
 function home(){
  return `<div class="hero">
-   <img class="hero-banner" src="assets/hero_bg.png" alt="仙逆天堂" onerror="this.style.display='none'">
+   <img class="hero-banner" src="assets/hero_bg.webp" width="1960" height="880" fetchpriority="high" alt="仙逆天堂" onerror="this.style.display='none'">
    <div class="hero-halo"></div><canvas class="hero-fx"></canvas>
-   <div class="hero-logo-wrap"><img class="hero-logo-ov" src="assets/logo_anim.webp" alt="仙逆天堂 King of Lineage" onerror="this.onerror=null;this.src='assets/logo_t.png'"></div>
+   <div class="hero-logo-wrap"><img class="hero-logo-ov" src="assets/logo_anim_s.webp" width="760" height="410" alt="仙逆天堂 King of Lineage" onerror="this.onerror=null;this.src='assets/logo_t_s.webp'"></div>
  </div>
  <div class="blocktitle">最新公告</div>
  <div class="ann">${NEWS.map((n,ix)=>`<div class="ann-row click" onclick="__art('news',${ix})"><span class="ann-date">${n[0]}</span><span class="ann-badge">${n[1]}</span><span class="ann-t">${esc(n[2])}</span><span class="arr">›</span></div>`).join('')}</div>
@@ -211,7 +219,7 @@ function home(){
  </div>
  <div class="foot">仙逆天堂 King of Lineage ‧ 官方情報站<br>資料取自本服資料庫，僅供參考，實際數值以遊戲內為準</div>`;
 }
-const gc=(s,i,t,n)=>`<div class="plaque" data-go="${s}">${n?`<div class="plaque-badge">${n}</div>`:''}<img class="plaque-logo" src="assets/logo_t.png" alt="" onerror="this.style.display='none'"><div class="plaque-frame"><div class="plaque-inner"><div class="plaque-title">${t}</div><div class="plaque-sub">點擊查看</div></div></div></div>`;
+const gc=(s,i,t,n)=>`<div class="plaque" data-go="${s}">${n?`<div class="plaque-badge">${n}</div>`:''}<img class="plaque-logo" src="assets/logo_t_s.webp" alt="" onerror="this.style.display='none'"><div class="plaque-frame"><div class="plaque-inner"><div class="plaque-title">${t}</div><div class="plaque-sub">點擊查看</div></div></div></div>`;
 
 /* 遊戲設定 */
 const SETTINGS=[
@@ -263,7 +271,7 @@ function tierBar(kind){
 function cardViewBase(kind,title,desc){
  return `<div class="sec-head"><div><h1 class="title">${title}</h1><div class="subtitle">${desc} ‧ 共 ${DB[kind].length} 張</div></div></div>${tierBar(kind)}<div class="toolbar"><div class="search"><span class="si">🔍</span><input id="q" placeholder="搜尋卡片名稱…" oninput="__f()"></div><span class="count" id="cnt"></span></div><div class="clist" id="rows"></div>`;}
 function cardRenderBase(kind){const q=(el('q').value||'').trim();const CAP=300;let arr=DB[kind];if(cardTier)arr=arr.filter(x=>x.tier===cardTier);if(q)arr=arr.filter(x=>hit(clean(x.n),q));const total=arr.length,show=arr.slice(0,CAP);el('cnt').textContent=`符合 ${total} 張`+(total>CAP?`（顯示前 ${CAP}）`:'');
- el('rows').innerHTML=show.map(r=>{const meta=(kind==='transform'&&r.t)?('變身時效 '+Math.round(r.t/60)+' 分'):'';const im=(window.CARDIMG&&window.CARDIMG[kind])?window.CARDIMG[kind][DB[kind].indexOf(r)]:'';const it=im?`<img src="assets/img/${im}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="this.style.display='none'">`:'';return `<div class="cc">${it}<div class="cn">${esc(clean(r.n))}${tierBadge(r.tier)}</div>${meta?`<div class="cmeta">${meta}</div>`:''}${cardStats(kind,r)}</div>`;}).join('')||'<div class="empty">找不到符合的卡片</div>';}
+ el('rows').innerHTML=show.map(r=>{const meta=(kind==='transform'&&r.t)?('變身時效 '+Math.round(r.t/60)+' 分'):'';const im=(window.CARDIMG&&window.CARDIMG[kind])?window.CARDIMG[kind][DB[kind].indexOf(r)]:'';const it=im?`<img src="assets/img/${imw(im)}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="if(!this.dataset.f&&/\.webp$/.test(this.src)){this.dataset.f=1;this.src=this.src.replace(/\.webp$/,'.png')}else this.style.display='none'">`:'';return `<div class="cc">${it}<div class="cn">${esc(clean(r.n))}${tierBadge(r.tier)}</div>${meta?`<div class="cmeta">${meta}</div>`:''}${cardStats(kind,r)}</div>`;}).join('')||'<div class="empty">找不到符合的卡片</div>';}
 function cards(){const nAw=(DB.awaken||[]).length;return `<div class="sec-head"><div><h1 class="title">卡冊系統</h1><div class="subtitle">蒐集永久加能力；召喚／變身中另有一套，不是同一串數字；覺醒為獨立圖鑑</div></div></div><div class="grid">${gc('doll','','娃娃系統',DB.doll.length+' 張')}${gc('transform','','變身系統',DB.transform.length+' 張')}${gc('holy','','聖物系統',DB.holy.length+' 張')}${gc('awaken','','覺醒圖鑑',nAw+' 張')}</div>`;}
 
 
@@ -289,7 +297,7 @@ function cardView(kind,title,desc){
 function csThumb(kind,i,nm){
  const d=(i>=0)?DB[kind][i]:null;const c=tierCol(d&&d.tier);
  const im=(i>=0&&window.CARDIMG&&window.CARDIMG[kind])?window.CARDIMG[kind][i]:'';
- const pic=im?`<img src="assets/img/${im}" loading="lazy" style="width:100%;aspect-ratio:3/4;object-fit:contain;display:block;border-radius:4px" onerror="this.style.display='none'">`:'';
+ const pic=im?`<img src="assets/img/${imw(im)}" loading="lazy" style="width:100%;aspect-ratio:3/4;object-fit:contain;display:block;border-radius:4px" onerror="if(!this.dataset.f&&/\.webp$/.test(this.src)){this.dataset.f=1;this.src=this.src.replace(/\.webp$/,'.png')}else this.style.display='none'">`:'';
  return `<div title="${esc(clean(nm))}" style="width:64px;text-align:center;border:1px solid ${c};border-radius:6px;padding:3px 2px 4px;background:rgba(0,0,0,.25)">${pic}<div style="font-size:10.5px;line-height:1.25;color:${c};margin-top:2px;word-break:break-all">${esc(clean(nm))}</div></div>`;
 }
 function csRender(kind){
@@ -352,7 +360,7 @@ function awakenRender(){
  if(q)arr=arr.filter(x=>hit(clean(x.n),q)||hit(AWKIND[x.kind]||'',q));
  el('cnt').textContent=`符合 ${arr.length} 張`;
  el('rows').innerHTML=arr.map(r=>{
-  const im=r.img?`<img src="assets/img/${r.img}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="this.style.display='none'">`:'';
+  const im=r.img?`<img src="assets/img/${imw(r.img)}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="if(!this.dataset.f&&/\.webp$/.test(this.src)){this.dataset.f=1;this.src=this.src.replace(/\.webp$/,'.png')}else this.style.display='none'">`:'';
   const badge=`<span class="tw-rar" style="color:var(--gold2,#e7c46a)">${esc(AWKIND[r.kind]||r.kind||'')}</span>`;
   return `<div class="cc">${im}<div class="cn">${esc(clean(r.n))} ${badge}</div>
    <div class="cmeta">${tierBadge(r.tier)}</div>${awakenStats(r)}</div>`;
@@ -403,7 +411,7 @@ function towerRender(){const T=twSec();const q=(el('q').value||'').trim();
  el('rows').innerHTML=arr.map(x=>{
    const col=RARC[x.r]||'#b9b2d0';
    const sts=twStar?(x.st||[]).filter(s=>s.s===twStar):(x.st||[]);
-   const im=x.img?`<img src="assets/img/${x.img}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="this.style.display='none'">`:'';
+   const im=x.img?`<img src="assets/img/${imw(x.img)}" loading="lazy" style="width:100px;height:133px;object-fit:contain;display:block;margin:0 auto 6px;border-radius:6px" onerror="if(!this.dataset.f&&/\.webp$/.test(this.src)){this.dataset.f=1;this.src=this.src.replace(/\.webp$/,'.png')}else this.style.display='none'">`:'';
    return `<div class="cc">${im}<div class="cn">${esc(x.n)}<span class="tw-rar" style="color:${col}">${esc(x.r||'')}</span></div>
    <div class="cmeta">${esc(LINEN[x.line]||x.line||'')} ‧ 最高 ★${x.max}${x.itn?' ‧ '+esc(x.itn):''}</div>
    ${sts.map(twStarRow).join('')||'<div class="tw-sm">（這張卡沒有這一星的設定）</div>'}</div>`;}).join('')||'<div class="empty">找不到卡片</div>';

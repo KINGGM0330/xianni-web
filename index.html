@@ -139,6 +139,8 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <a data-s="upgrade"><span class="ic">🛡️</span>升階裝備</a>
 <a data-s="trial"><span class="ic">⚔️</span>仙逆試煉</a>
 <a data-s="mcard"><span class="ic">🌙</span>月卡系統</a>
+<a data-s="cardsys"><span class="ic">🃏</span>王卡系統</a>
+<a data-s="stonesys"><span class="ic">💎</span>符石系統</a>
 <a data-s="rank"><span class="ic">🏆</span>排行榜</a>
 <a id="dl" href="#" target="_blank" rel="noopener"><span class="ic">⬇️</span>遊戲下載</a>
 </nav></div></header>
@@ -149,6 +151,8 @@ h1.title{font-size:23px;font-weight:900;letter-spacing:1px;margin-bottom:4px;bac
 <script src="assets/rank.js?v=6945db83"></script>
 <script src="assets/trial.js"></script>
 <script src="assets/mcard.js"></script>
+<script src="assets/cardsys.js"></script>
+<script src="assets/clanflag.js"></script>
 <script src="assets/game-data.js?v=9368c232"></script>
 <script>(function(){
 const DB=window.DB, JOBSET=window.JOBSET, app=document.getElementById('app');
@@ -452,7 +456,8 @@ function eventView(){return `<div class="sec-head"><div><h1 class="title">🕯�
 function preshopView(){const rows=DB.preshop.map(r=>`<tr><td class="nm">${esc(r.n)}</td><td class="idc">#${r.item}</td><td><span class="chip pos">${(r.price||0).toLocaleString()} 積分</span></td><td>${r.cnt}${r.en?' +'+r.en:''}</td><td>${r.daily?('每日 '+r.daily):'不限'}</td></tr>`).join('');return `<div class="sec-head"><div><h1 class="title">威望積分商店</h1><div class="subtitle">以威望積分兌換 ‧ 共 ${DB.preshop.length} 項</div></div></div><div class="tblwrap"><table class="tbl"><thead><tr><th>品項</th><th>道具</th><th>積分</th><th>數量/強化</th><th>每日限購</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
 function rebskillView(){const rows=DB.rebskill.map(r=>`<tr><td class="nm">${esc(r.n)}</td><td style="color:var(--gold2)">${r.lv} 轉</td><td>${r.dmg?('<span class="chip pos">傷害 '+r.dmg+'</span>'):'—'}</td><td>${r.rate?('<span class="chip">機率 '+r.rate+'%</span>'):'—'}</td></tr>`).join('');return `<div class="sec-head"><div><h1 class="title">轉生技能強化</h1><div class="subtitle">轉生後強化技能 ‧ 共 ${DB.rebskill.length} 項</div></div></div><div class="tblwrap"><table class="tbl"><thead><tr><th>技能</th><th>轉生</th><th>傷害</th><th>機率</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
 function clanView(){const lv=DB.clan.levels.map(r=>`<tr><td class="nm" style="color:var(--gold2)">${r.lv} 級</td><td>${chips(r.s)}</td><td><span class="chip">經驗 x${esc(r.exp)}</span></td></tr>`).join('');const up=DB.clan.upgrades.map(r=>{const m=(r.mat||'').split(',');const c=(r.cnt||'').split(',');const mm=m.map((x,i)=>x?('#'+x+'×'+(c[i]||'')):'').filter(Boolean).join('、');return `<tr><td class="nm" style="color:var(--gold2)">${r.lv} 級</td><td>${r.pk?('PK '+r.pk):'—'}</td><td class="idc">${esc(mm||'—')}</td></tr>`;}).join('');
- return `<div class="sec-head"><div><h1 class="title">血盟養成</h1><div class="subtitle">血盟等級能力</div></div></div><div class="blocktitle">等級能力</div><div class="tblwrap"><table class="tbl"><thead><tr><th>等級</th><th>能力加成</th><th>經驗</th></tr></thead><tbody>${lv}</tbody></table></div>`;}
+ return `<div class="sec-head"><div><h1 class="title">血盟養成</h1><div class="subtitle">血盟等級能力</div></div></div><div class="blocktitle">等級能力</div><div class="tblwrap"><table class="tbl"><thead><tr><th>等級</th><th>能力加成</th><th>經驗</th></tr></thead><tbody>${lv}</tbody></table></div>${flagSec()}`;}
+function flagSec(){const F=window.CLANFLAG;if(!F)return '';const rows=F.tiers.map(t=>`<tr><td class="nm" style="color:var(--gold2)">${t.i} 階</td><td class="nm">${esc(t.n)}</td><td>${chips(Object.fromEntries(t.st))}</td><td>${t.need?('<span class="chip">令牌 ×'+t.need+'</span>'):'血盟貢獻購買'}</td><td class="idc">${t.cost.toLocaleString()} 貢獻</td></tr>`).join('');return `<div class="blocktitle" style="margin-top:18px">血盟旗幟（10 階）</div><div class="subtitle" style="margin:4px 0 10px">用「血盟貢獻」購買 1 級旗幟與【血盟旗幟令牌】（1 個 ${F.tokenPrice} 貢獻，商店有 ${F.packs.join('／')} 個包），到【血盟專員】NPC「旗幟升階」：上一階旗幟 ×1 ＋ 令牌 → 下一階。旗幟裝備於護身符欄，綁角色不可交易。</div><div class="tblwrap"><table class="tbl"><thead><tr><th>階</th><th>旗幟</th><th>能力</th><th>升到本階需要</th><th>累計花費</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
 function more(){return `<div class="sec-head"><div><h1 class="title">其他系統</h1><div class="subtitle">角色進階與更多玩法 ‧ 皆可點入查看資料</div></div></div>
  <div class="blocktitle">角色進階</div><div class="grid">${gc('pattern','','紋樣系統',DB.pattern.length+' 級')}${gc('rebirth','','轉生系統',DB.rebirth.length+' 筆')}${gc('prestige','','威望系統',DB.prestige.length+' 階')}${gc('clan','','血盟養成',DB.clan.levels.length+' 級')}</div>
  <div class="blocktitle">強化 / 外觀</div><div class="grid">${gc('star','','星盤守護星',DB.star.length+' 項')}${gc('bless','','祝福強化',DB.bless.length+' 項')}</div>
@@ -719,6 +724,94 @@ function trialRender(){
 window.__trial=function(i){trTier=i;trialRender();};
 window.__trSet=function(i){trSet=i;trialRender();};
 
+
+/* ===== 王卡系統／符石系統（資料：assets/cardsys.js，由 官網_職業裝備產生器\10_產生王卡符石.py 產生） ===== */
+let ksI=0;
+const KS_CARD='<img src="assets/icons/4771.png" style="width:30px;height:30px;image-rendering:pixelated;flex:none" onerror="this.style.display=\'none\'">';
+function ksIc(g,sz){return g?`<img src="assets/icons/${g}.png" style="width:${sz||32}px;height:${sz||32}px;image-rendering:pixelated;flex:none;vertical-align:middle" onerror="this.style.display='none'">`:'';}
+function ksChips(st,cls){return '<div class="chips">'+st.map(a=>`<span class="chip ${cls||'pos'}">${esc(a[0])}<b>+${a[1]}</b></span>`).join('')+'</div>';}
+function ksStep(l,v){return `<div class="set-row"><span class="set-l">${l}</span><span class="set-v" style="white-space:normal;text-align:right">${v}</span></div>`;}
+function cardsView(){
+ const C=window.CARDSYS;
+ if(!C) return `<div class="sec-head"><div><h1 class="title">王卡系統</h1><div class="subtitle">資料還沒產生</div></div></div>`;
+ const costRows=C.tiers.map((t,i)=>`<tr><td class="nm">${t}</td><td>${i===0?'現有王卡 1 張':'上一階同主題卡 1 張'}</td><td>${C.cost.ess[i]}</td><td>${C.cost.gold[i]||'—'}</td><td>${i+1} 屬性</td></tr>`).join('');
+ return `<div class="sec-head"><div><h1 class="title">王卡系統</h1><div class="subtitle">鑲在裝備的洞裡加屬性 ‧ 現有王卡升【凡塵】 ‧ 10 種主題逐階升到【真丹】 ‧ 同裝備湊同主題有套卡加成</div></div></div>
+ <div class="set-sec" style="max-width:none"><div class="set-sec-t">如何升級</div>
+  ${ksStep(`① 打洞`,`裝備需先有洞（武器最多 5 洞、防具最多 3 洞），把王卡鑲進洞裡；卡只能在「脫下」狀態鑲嵌，穿上後才生效`)}
+  ${ksStep(`② 升凡塵`,`找 NPC【王卡製作】→「現有王卡」→ 選一張你手上的舊王卡，花 <b>精魄 ${C.cost.ess[0]}</b> 升成對應主題的【凡塵】卡（1 屬性）`)}
+  ${ksStep(`③ 逐階升級`,`凡塵→靈息→聚靈→築基→真丹，每升一階多 1 種屬性、數值也變高。材料：<b>上一階的同主題卡 1 張</b>（一張升一階）＋ 精魄 ＋ 金元寶`)}
+  ${ksStep(`④ 配搭`,`10 種主題的屬性路線都不同（輸出／敏捷／法系／防守／血魔／PVP／打王／回復…），依裝備與職業自由搭配`)}
+  ${ksStep(`回退`,`新卡（凡塵～真丹）不想要了：找 NPC【王卡製作】→「回退」，<b>1 張換回「從凡塵升到這一階」累計花的精魄</b>（凡塵 10／靈息 35／聚靈 70／築基 115／真丹 170）。<b>只退精魄</b>，舊卡、金元寶、另一張卡都不退，退回的精魄可以拿去升級別的卡。<b>原有王卡也能回退</b>：退製作它時花的精魄（3～5 個，金元寶不退）`)}
+  ${ksStep(`⑤ 主題配對加成`,`兩個指定主題可以<b>混搭</b>：同一件裝備洞內，配對的兩個主題<b>各至少 1 張</b>，合計 2／3／4／5 張就多一組配對加成，倍率看這兩個主題洞內<b>最低階</b>；<b>和同主題套卡加成可以同時拿</b>`)}
+  ${ksStep(`⑥ 套卡加成`,`<b>同一件裝備</b>的洞內湊 2／3／4／5 張同主題卡，另外多一組加成；效果乘以洞內該主題<b>最低階</b>的倍率（凡塵×1 … 真丹×5），所以整套都升階才拿滿`)}
+ </div>
+ <div class="blocktitle">升階成本</div>
+ <div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>階級</th><th>材料</th><th>精魄</th><th>金元寶</th><th>屬性數</th></tr></thead><tbody>${costRows}</tbody></table></div>
+ <div class="idc" style="margin:-6px 0 8px">※ 升階成功率 100%。卡片數值是「單張卡」的效果；5 洞全放真丹同主題＝5 張卡總和＋套卡加成。</div>
+ <div class="blocktitle">主題配對加成（可混搭）</div>
+ <div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>配對</th><th>定位</th><th>合計 2 張</th><th>合計 3 張</th><th>合計 4 張</th><th>合計 5 張</th></tr></thead><tbody>${(C.pairs||[]).map(p=>`<tr><td class="nm">〔${esc(p.a)}〕＋〔${esc(p.b)}〕</td><td>${esc(p.tag)}</td>${p.sets.map(s=>`<td>${ksChips(s.st)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+ <div class="idc" style="margin:-6px 0 8px">※ 配對兩個主題各至少 1 張才算；效果乘以這兩個主題在洞內的最低階倍率（凡塵×1 … 真丹×5）。同主題套卡加成照舊，兩邊可以同時拿。</div>
+ <div class="blocktitle">主題與升階一覽</div><div id="ksbar" style="margin:4px 0 14px"></div><div id="ksbody"></div>`;
+}
+function cardsRender(){
+ const C=window.CARDSYS;if(!C)return;
+ const bar=el('ksbar'),body=el('ksbody');if(!bar||!body)return;
+ const names=C.themes.map(t=>t.n).concat(['原有王卡']);
+ bar.innerHTML=names.map((n,i)=>{const col=i<C.themes.length?C.themes[i].col:'#9fb3c8',on=i===ksI;return `<button onclick="__ks(${i})" style="padding:6px 15px;margin:0 7px 7px 0;border-radius:16px;cursor:pointer;font-size:13px;border:1px solid ${col};background:${on?col:'transparent'};color:${on?'#121018':col};font-weight:700">${esc(n)}</button>`;}).join('');
+ if(ksI>=C.themes.length){
+  const rows=C.base.map(b=>`<tr><td class="nm">${KS_CARD}</td><td class="nm">${esc(b.n)}</td><td>${esc(b.type)}</td><td>${ksChips(b.st)}</td><td>精魄 ${b.ess}${b.gold?'、金元寶 '+b.gold:''}</td><td style="color:#9fb3c8">${b.to?'→ 〔'+esc(b.to)+'〕凡塵':''}</td></tr>`).join('');
+  body.innerHTML=`<div class="note" style="margin-bottom:10px">這些是原本就有的王卡（找 NPC【王卡製作】製作）。每一張都可以再花 <b>精魄 ${C.cost.ess[0]}</b> 升成右邊對應主題的【凡塵】卡，之後再逐階升級。</div><div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th></th><th>王卡</th><th>可鑲</th><th>屬性</th><th>製作材料</th><th>可升級成</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  return;
+ }
+ const T=C.themes[ksI],col=T.col;
+ const rows=T.cards.map(c=>{
+  const need=c.tier===1?`原卡（${c.from.map(esc).join('、')}）任 1 張 ＋ 精魄 ${c.ess}`:`${esc(c.prev)} ＋ 精魄 ${c.ess} ＋ 金元寶 ${c.gold}`;
+  return `<tr><td class="nm" style="color:${col};white-space:nowrap">${ksIc(c.ic)}</td><td class="nm" style="color:${col}">${esc(c.n)}</td><td>${ksChips(c.st)}</td><td style="font-size:12px;color:#c3d0e0">${need}</td></tr>`;}).join('');
+ const sets=T.sets.map(s=>`<tr><td class="nm" style="color:${col}">${s.need} 張</td><td>${ksChips(s.st,'')}</td><td class="idc">${s.st.map(a=>esc(a[0])+'+'+a[1]+'×最低階').join('　')}</td></tr>`).join('');
+ const eg=T.sets[3].st.map(a=>esc(a[0])+'+'+(a[1]*5)).join(' ');
+ body.innerHTML=`<div class="set-sec" style="border-color:${col}55"><div class="set-sec-t" style="color:${col};background:linear-gradient(90deg,${col}22,transparent)">〔${esc(T.n)}〕系 ‧ ${esc(T.type)}</div>
+   ${ksStep('屬性路線',T.pool.map(esc).join(' → ')+'（每升一階解鎖下一項）')}</div>
+  <div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th></th><th>卡片</th><th>單張屬性</th><th>升級所需</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="blocktitle" style="font-size:15px">套卡加成（同一件裝備洞內湊〔${esc(T.n)}〕卡）</div>
+  <div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>張數</th><th>基礎加成</th><th>說明</th></tr></thead><tbody>${sets}</tbody></table></div>
+  <div class="idc" style="margin:-6px 0 4px">※ 例：5 張全是真丹＝基礎加成 ×5（${eg}），再加上 5 張單卡本身的屬性。只要有 1 張是凡塵，倍率就只有 ×1。</div>`;
+}
+window.__ks=function(i){ksI=i;cardsRender();};
+let skI=0;
+function stoneView(){
+ const C=window.CARDSYS;
+ if(!C||!C.stone) return `<div class="sec-head"><div><h1 class="title">符石系統</h1><div class="subtitle">資料還沒產生</div></div></div>`;
+ const S=C.stone;
+ const r55=S.s55.map(x=>`<tr><td class="nm">${esc(x.n)}</td><td>${ksChips(x.st)}</td><td style="font-size:12px;color:#c3d0e0">${S.m55[0]} ×${S.m55[2]} ＋ ${S.m55[1]} ×${S.m55[3]}</td></tr>`).join('');
+ const r70=S.s70.map(x=>`<tr><td class="nm">${esc(x.n)}</td><td>${ksChips(x.st)}</td><td style="font-size:12px;color:#c3d0e0">${S.m70[0]} ×${S.m70[2]} ＋ ${S.m70[1]} ×${S.m70[3]}</td></tr>`).join('');
+ const costRows=C.tiers.map((t,i)=>`<tr><td class="nm">${t}</td><td>${i===0?'現有 70 級符石 1 顆':'上一階同路線符石 1 顆'}</td><td>${C.scost.shard[i]}</td><td>${C.scost.gold[i]||'—'}</td></tr>`).join('');
+ return `<div class="sec-head"><div><h1 class="title">符石系統</h1><div class="subtitle">符石裝在「符石欄」 ‧ 55 級／70 級 ‧ 70 級可升【凡塵】到【真丹】 ‧ 10 條路線 ‧ 全職業通用</div></div></div>
+ <div class="set-sec" style="max-width:none"><div class="set-sec-t">如何取得與升級</div>
+  ${ksStep(`① 做基礎符石`,`找 NPC【飾品大師】→「符石」：55 級（${S.m55[0]}、${S.m55[1]} 各 ${S.m55[2]}）、70 級（${S.m70[0]}、${S.m70[1]} 各 ${S.m70[2]}）`)}
+  ${ksStep(`② 升凡塵`,`【飾品大師】→「符石」→「符石升階」→ 選路線，用<b>手上的 70 級符石 1 顆 ＋ 符石碎片 ×${C.scost.shard[0]}</b> 升成該路線的【凡塵】符石`)}
+  ${ksStep(`③ 逐階升級`,`凡塵→靈息→聚靈→築基→真丹，每階用<b>上一階同路線符石 1 顆 ＋ 符石碎片 ＋ 金元寶</b>，數值越來越高`)}
+  ${ksStep(`④ 路線`,`同一種 70 級符石可以走 2 條路線（力量石→力量／戰意、敏捷石→敏捷／遠射、體質石→體質／守護、智力石→智力／魔導、精神石→精神／回復），屬性偏重不同`)}
+  ${ksStep(`符石碎片哪裡來`,`<b>${C.shard.n}</b>：①【修真積分商店】用積分購買（每日限購 ${C.shard.limit} 個）②【仙逆試煉】新地圖怪物掉落`)}
+  ${ksStep(`⑤ 配戴`,`符石放在符石欄位（一次一顆），可隨時更換`)}
+ </div>
+ <div class="blocktitle">55 級符石</div>
+ <div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>符石</th><th>屬性</th><th>製作材料</th></tr></thead><tbody>${r55}</tbody></table></div>
+ <div class="blocktitle">70 級符石（升階起點）</div>
+ <div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>符石</th><th>屬性</th><th>製作材料</th></tr></thead><tbody>${r70}</tbody></table></div>
+ <div class="blocktitle">${ksIc(C.shard.ic,28)} 符石升階成本</div>
+ <div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>階級</th><th>材料</th><th>符石碎片</th><th>金元寶</th></tr></thead><tbody>${costRows}</tbody></table></div>
+ <div class="blocktitle">路線與各階屬性</div><div id="skbar" style="margin:4px 0 14px"></div><div id="skbody"></div>`;
+}
+function stoneRender(){
+ const C=window.CARDSYS;if(!C||!C.stone)return;
+ const bar=el('skbar'),body=el('skbody');if(!bar||!body)return;
+ const R=C.stone.routes;
+ bar.innerHTML=R.map((r,i)=>{const on=i===skI;return `<button onclick="__sk(${i})" style="padding:6px 15px;margin:0 7px 7px 0;border-radius:16px;cursor:pointer;font-size:13px;border:1px solid ${r.col};background:${on?r.col:'transparent'};color:${on?'#121018':r.col};font-weight:700">${esc(r.n)}</button>`;}).join('');
+ const r=R[skI];
+ const rows=r.tiers.map(t=>`<tr><td class="nm" style="color:${r.col};white-space:nowrap">${ksIc(t.ic)} ${esc(t.n)}</td><td>${ksChips(t.st)}</td><td style="font-size:12px;color:#c3d0e0">${t.tier===1?`${esc(t.from)} ＋ 符石碎片 ×${t.ess}`:`${esc(t.prev)} ＋ 符石碎片 ×${t.ess} ＋ 金元寶 ${t.gold}`}</td></tr>`).join('');
+ body.innerHTML=`<div class="tblwrap" style="max-height:none"><table class="tbl"><thead><tr><th>符石</th><th>屬性</th><th>升級所需</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+window.__sk=function(i){skI=i;stoneRender();};
 function mcardView(){
  const M=window.MCARD;
  if(!M||!M.levels) return `<div class="sec-head"><div><h1 class="title">月卡系統</h1><div class="subtitle">資料還沒產生</div></div></div>`;
@@ -743,14 +836,14 @@ function mcardView(){
  <div class="note" style="margin-bottom:12px">Lv0 的古白藥水可直接喝，也是升級材料；Lv1～${M.pots.length-1} 同樣可喝，回復量隨等級提高、金幣消耗也隨等級增加。升級請找「充月卡專員」，系統會升背包內最高等級的那一瓶。藥水不在商城販售，只能靠月卡每次贈送取得。</div>${pt}`;
 }
 
-const R={trial:trialView,mcard:mcardView,rank:rankView,home,settings,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
+const R={trial:trialView,mcard:mcardView,cardsys:cardsView,stonesys:stoneView,rank:rankView,home,settings,upgrade:upgradeHub,jobset:jobsetView,upweapon:upWeaponView,upacc:upAccView,upbadge:upBadgeView,weapon:()=>equipView('weapon'),armor:()=>equipView('armor'),cards,gallery:galleryView,drop:dropView,promo:promoView,invite:inviteView,
  doll:()=>cardView('doll','娃娃系統','收集（永久）與召喚中是兩套數字'),transform:()=>cardView('transform','變身系統','收集（永久）與變身中是兩套數字，含時效'),holy:()=>cardView('holy','聖物系統','收集（永久）與召喚中是兩套數字'),
  awaken:awakenView,
  pattern:patternView,rebirth:rebirthView,prestige:prestigeView,more,rebskill:rebskillView,preshop:preshopView,clan:clanView,
  tower:towerView, star:()=>listView('star'),bless:()=>listView('bless'),refine:()=>listView('refine'),color:()=>listView('color'),bosscol:()=>listView('bosscol'),achieve:()=>listView('achieve')};
 window.__f=function(){if(cur==='weapon')equipRender('weapon');else if(cur==='armor')equipRender('armor');else if(cur==='doll')cardRender('doll');else if(cur==='transform')cardRender('transform');else if(cur==='holy')cardRender('holy');else if(cur==='awaken')awakenRender();else if(cur==='gallery')galleryRender();else if(cur==='drop')dropRender();else if(cur==='tower')towerRender();else if(cur==='pattern')patternRender();else if(LISTKEYS.indexOf(cur)>=0)listRender(cur);};
 function go(s){if(!R[s])s='home';cur=s;if(s==='doll'||s==='transform'||s==='holy'){cardTier='';cardTab='card';csStat='';}if(s==='awaken'){awKind='';awTier='';}if(s==='tower'){twStar=0;twTier='';}if(LISTKEYS.indexOf(s)>=0){listCat='';}if(s==='rebirth'){rebJob='';}app.innerHTML=R[s]();document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.s===s));
- if(s==='weapon')equipRender('weapon');if(s==='armor')equipRender('armor');if(s==='doll')cardRender('doll');if(s==='transform')cardRender('transform');if(s==='holy')cardRender('holy');if(s==='awaken')awakenRender();if(s==='jobset')jobsetRender();if(s==='trial'){trTier=0;trSet=0;trialRender();}if(s==='gallery')galleryRender();if(s==='drop')dropRender();if(s==='tower')towerRender();if(s==='rebirth')rebirthRender();if(s==='pattern')patternRender();if(LISTKEYS.indexOf(s)>=0)listRender(s);
+ if(s==='weapon')equipRender('weapon');if(s==='armor')equipRender('armor');if(s==='doll')cardRender('doll');if(s==='transform')cardRender('transform');if(s==='holy')cardRender('holy');if(s==='awaken')awakenRender();if(s==='jobset')jobsetRender();if(s==='cardsys'){ksI=0;cardsRender();}if(s==='stonesys'){skI=0;stoneRender();}if(s==='trial'){trTier=0;trSet=0;trialRender();}if(s==='gallery')galleryRender();if(s==='drop')dropRender();if(s==='tower')towerRender();if(s==='rebirth')rebirthRender();if(s==='pattern')patternRender();if(LISTKEYS.indexOf(s)>=0)listRender(s);
  if(s==='home')initHeroFx();window.scrollTo(0,0);closeNav();history.replaceState(null,'','#'+s);}
 window.__go=go;
 window.__tier=function(kind,t){cardTier=t;app.innerHTML=R[kind]();cardRender(kind);};
